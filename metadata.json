@@ -1,0 +1,6 @@
+{
+  "name": "ClinOS AI",
+  "description": "AI-powered clinical copilot platform for Canadian healthcare including Ambient Scribe, Translation, Intake, safety intelligence, and unified patient timelines.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
