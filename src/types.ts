@@ -24,6 +24,7 @@ export interface Patient {
   procedures: string[];
   symptomTrends?: SymptomTrend[];
   medicationHistory?: MedicationHistory[];
+  soapNotes?: SOAPNote[];
 }
 
 export interface Medication {
@@ -88,6 +89,7 @@ export interface SOAPNote {
   objective: string;
   assessment: string;
   plan: string;
+  summary?: string;
 }
 
 export interface SafetyAlert {

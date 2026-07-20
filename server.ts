@@ -463,6 +463,44 @@ app.get("/api/patients/:id", (req, res) => {
   res.json(patient);
 });
 
+app.post("/api/patients/:id/sync-soap-note", (req, res) => {
+  const { id } = req.params;
+  const { subjective, objective, assessment, plan, summary, date, clinicianId } = req.body;
+  
+  const patient = patients.find(p => p.id === id);
+  if (!patient) {
+    return res.status(404).json({ error: "Patient not found" });
+  }
+
+  const newSoapNote = {
+    id: `soap-${Date.now()}`,
+    date: date || new Date().toLocaleDateString("en-CA"),
+    clinicianId: clinicianId || "cl-01",
+    subjective: subjective || "",
+    objective: objective || "",
+    assessment: assessment || "",
+    plan: plan || "",
+    summary: summary || ""
+  };
+
+  if (!(patient as any).soapNotes) {
+    (patient as any).soapNotes = [];
+  }
+  
+  (patient as any).soapNotes.unshift(newSoapNote);
+
+  addAuditLog(
+    "SYNC_SOAP_NOTE_EMR",
+    "Dr. Alistair Vance",
+    "Family Physician",
+    `Synchronized live-edited SOAP Progress Note for ${patient.name} back to OntarioMD/Accuro EMR clinical archive.`,
+    patient.id,
+    patient.name
+  );
+
+  res.json({ success: true, soapNote: newSoapNote, patient });
+});
+
 app.post("/api/patients", (req, res) => {
   const patientData = req.body;
   const newPatient = {

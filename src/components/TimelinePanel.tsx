@@ -94,6 +94,15 @@ export default function TimelinePanel({ patient, onRefresh, onLogAudit }: Timeli
       status: r.status,
       icon: ChevronRight,
       color: "text-purple-600 bg-purple-50 border-purple-200"
+    })),
+    ...(patient.soapNotes || []).map(s => ({
+      date: s.date,
+      category: "scribe",
+      title: "EMR SOAP Progress Note",
+      detail: `Assessment: ${s.assessment} • Summary: ${s.summary || "Manual review note"}`,
+      status: "Synced",
+      icon: ClipboardList,
+      color: "text-indigo-600 bg-indigo-50 border-indigo-200"
     }))
   ];
 
@@ -138,7 +147,7 @@ export default function TimelinePanel({ patient, onRefresh, onLogAudit }: Timeli
           <p className="text-xs text-slate-400 font-medium">Longitudinal clinical history & imaging tracking</p>
         </div>
         <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
-          {["all", "condition", "medication", "lab", "imaging"].map((cat) => (
+          {["all", "condition", "medication", "lab", "imaging", "scribe"].map((cat) => (
             <button
               key={cat}
               onClick={() => setFilterCategory(cat)}
@@ -148,7 +157,7 @@ export default function TimelinePanel({ patient, onRefresh, onLogAudit }: Timeli
                   : "text-slate-500 hover:text-slate-900"
               }`}
             >
-              {cat === "all" ? "All" : cat === "lab" ? "Labs" : cat}
+              {cat === "all" ? "All" : cat === "lab" ? "Labs" : cat === "scribe" ? "Scribe" : cat}
             </button>
           ))}
         </div>

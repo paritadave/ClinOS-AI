@@ -310,14 +310,17 @@ export default function App() {
       const dashboardCard = cards.find(c => c.id === "dashboard")!;
       dashboardCard.span = "xl:col-span-12";
 
-      // Order: Safety, Appointments, Dashboard, Patient Summary, Timeline, Scribe, Intake
+      const scribeCard = cards.find(c => c.id === "scribe")!;
+      scribeCard.span = "xl:col-span-12";
+
+      // Order: Scribe (top centerpiece), Safety, Appointments, Dashboard, Patient Summary, Timeline, Intake
       return [
+        scribeCard,
         safetyCard,
         apptsCard,
         dashboardCard,
         cards.find(c => c.id === "patientSummary")!,
         cards.find(c => c.id === "timeline")!,
-        cards.find(c => c.id === "scribe")!,
         cards.find(c => c.id === "intake")!
       ];
     } else if (activeRole === UserRole.ALLIED_HEALTH || activeRole === UserRole.NURSE_PRACTITIONER) {
@@ -331,13 +334,16 @@ export default function App() {
       const summaryCard = cards.find(c => c.id === "patientSummary")!;
       summaryCard.span = "xl:col-span-12";
 
-      // Order: Appointments (Schedule) first, Safety, Summary, Dashboard, Scribe, Timeline, Intake
+      const scribeCard = cards.find(c => c.id === "scribe")!;
+      scribeCard.span = "xl:col-span-12";
+
+      // Order: Appointments (Schedule) first, Scribe (centerpiece), Safety, Summary, Dashboard, Timeline, Intake
       return [
         apptsCard,
+        scribeCard,
         safetyCard,
         summaryCard,
         cards.find(c => c.id === "dashboard")!,
-        cards.find(c => c.id === "scribe")!,
         cards.find(c => c.id === "timeline")!,
         cards.find(c => c.id === "intake")!
       ];
@@ -349,11 +355,14 @@ export default function App() {
     const apptsCard = cards.find(c => c.id === "appointments")!;
     apptsCard.span = "xl:col-span-4";
 
+    const scribeCard = cards.find(c => c.id === "scribe")!;
+    scribeCard.span = "xl:col-span-12";
+
     return [
+      scribeCard,
       dbCard,
       apptsCard,
       cards.find(c => c.id === "patientSummary")!,
-      cards.find(c => c.id === "scribe")!,
       cards.find(c => c.id === "safety")!,
       cards.find(c => c.id === "timeline")!,
       cards.find(c => c.id === "intake")!
