@@ -121,31 +121,29 @@ const INITIAL_LONGITUDINAL_DATA: Record<string, {
       { date: "2026-07-15", "Knee Joint Stiffness": 7, "Uremic Fatigue": 6 }
     ]
   },
-  // Emily Chen (Postpartum Anxiety, Asthma)
+  // Leo Thompson (Pediatric Asthma, Eczema)
   "pat-03": {
     vitals: [
-      { date: "2026-04-01", peakFlow: 410, heartRate: 88, respiratoryRate: 20 },
-      { date: "2026-05-01", peakFlow: 430, heartRate: 82, respiratoryRate: 18 }, // Sertraline started
-      { date: "2026-06-01", peakFlow: 445, heartRate: 76, respiratoryRate: 16 },
-      { date: "2026-07-15", peakFlow: 460, heartRate: 74, respiratoryRate: 15 }
+      { date: "2026-04-01", peakFlow: 210, heartRate: 98, respiratoryRate: 24 },
+      { date: "2026-05-01", peakFlow: 220, heartRate: 92, respiratoryRate: 22 },
+      { date: "2026-06-01", peakFlow: 230, heartRate: 88, respiratoryRate: 20 },
+      { date: "2026-07-15", peakFlow: 225, heartRate: 90, respiratoryRate: 20 }
     ],
     labs: [
-      { date: "2026-04-01", tsh: 2.5, hemoglobin: 110 }, // Postpartum mild anemia
-      { date: "2026-05-10", tsh: 2.1, hemoglobin: 122 },
-      { date: "2026-07-15", tsh: 2.0, hemoglobin: 130 }
+      { date: "2026-05-10", allergyIge: 45.2, eosinophils: 0.6 }
     ],
     pros: [
-      { date: "2026-04-01", gad7: 16, epds: 18 }, // Severe postpartum anxiety & depression risk
-      { date: "2026-05-01", gad7: 11, epds: 12 }, // Gradual Zoloft response
-      { date: "2026-06-01", gad7: 7, epds: 8 },   // Well controlled
-      { date: "2026-07-15", gad7: 4, epds: 5 }
+      { date: "2026-04-01", actScore: 14, eczemaScore: 18 },
+      { date: "2026-05-01", actScore: 18, eczemaScore: 12 },
+      { date: "2026-06-01", actScore: 23, eczemaScore: 6 },
+      { date: "2026-07-15", actScore: 21, eczemaScore: 8 }
     ],
     symptoms: [
-      { date: "2026-04-01", "Postpartum Anxiety": 7, "Asthma Wheezing": 3 },
-      { date: "2026-04-10", "Postpartum Anxiety": 6, "Asthma Wheezing": 4 }, // Spring pollen trigger
-      { date: "2026-05-10", "Postpartum Anxiety": 5, "Asthma Wheezing": 2 },
-      { date: "2026-06-01", "Postpartum Anxiety": 3, "Asthma Wheezing": 1 },
-      { date: "2026-07-15", "Postpartum Anxiety": 2, "Asthma Wheezing": 1 }
+      { date: "2026-04-01", "Asthma Cough": 4, "Eczema Flare": 5 },
+      { date: "2026-04-10", "Asthma Cough": 3, "Eczema Flare": 4 },
+      { date: "2026-05-10", "Asthma Cough": 2, "Eczema Flare": 3 },
+      { date: "2026-06-01", "Asthma Cough": 1, "Eczema Flare": 2 },
+      { date: "2026-07-15", "Asthma Cough": 2, "Eczema Flare": 2 }
     ]
   }
 };
@@ -222,8 +220,8 @@ export default function LongitudinalTrendGraph({ patient, onLogAudit }: Longitud
         );
       } else {
         defaultList.push(
-          { key: "tsh", label: "TSH (Thyroid)", unit: "mIU/L", color: "#3B82F6" },
-          { key: "hemoglobin", label: "Hemoglobin", unit: "g/L", color: "#EF4444" }
+          { key: "allergyIge", label: "Peanut IgE Antibody", unit: "kU/L", color: "#3B82F6" },
+          { key: "eosinophils", label: "Eosinophils", unit: "x10^9/L", color: "#EF4444" }
         );
       }
     } else if (activeCategory === "pros") {
@@ -240,8 +238,8 @@ export default function LongitudinalTrendGraph({ patient, onLogAudit }: Longitud
         );
       } else {
         defaultList.push(
-          { key: "gad7", label: "GAD-7 Postpartum Anxiety", unit: "score", color: "#3B82F6" },
-          { key: "epds", label: "EPDS Depression Score", unit: "score", color: "#EC4899" }
+          { key: "actScore", label: "Child Asthma Control Score (ACT)", unit: "score", color: "#3B82F6" },
+          { key: "eczemaScore", label: "Eczema Severity (EASI)", unit: "score", color: "#EC4899" }
         );
       }
     } else {
@@ -258,8 +256,8 @@ export default function LongitudinalTrendGraph({ patient, onLogAudit }: Longitud
         );
       } else {
         defaultList.push(
-          { key: "Postpartum Anxiety", label: "Postpartum Anxiety Severity", unit: "0-10", color: "#3B82F6" },
-          { key: "Asthma Wheezing", label: "Asthma Wheezing Severity", unit: "0-10", color: "#10B981" }
+          { key: "Asthma Cough", label: "Asthma Cough Severity", unit: "0-10", color: "#3B82F6" },
+          { key: "Eczema Flare", label: "Eczema Flare Severity", unit: "0-10", color: "#10B981" }
         );
       }
     }

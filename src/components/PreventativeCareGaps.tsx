@@ -148,51 +148,51 @@ const INITIAL_CARE_GAPS: Record<string, CareGap[]> = {
       severity: "medium"
     }
   ],
-  // Emily Chen (Postpartum Anxiety, Asthma)
+  // Leo Thompson (Pediatric Asthma, Eczema)
   "pat-03": [
     {
       id: "gap-1",
       category: "lifestyle",
-      title: "Written Asthma Action Plan (WAAP) Review",
-      recommendation: "Co-design personalized peak-flow response plan. Red zone, yellow zone, and emergency criteria.",
-      evidenceSource: "Canadian Thoracic Society Asthma Guidelines",
+      title: "Pediatric Written Asthma Action Plan (WAAP) Review",
+      recommendation: "Co-design personalized pediatric peak-flow and symptom-response plan for parents, caregivers, and school staff.",
+      evidenceSource: "Canadian Thoracic Society Pediatric Asthma Guidelines",
       status: "Overdue",
       dueDate: "2026-06-10",
-      chronicConditionTag: "Asthma Bronchiale",
+      chronicConditionTag: "Pediatric Asthma",
       severity: "high"
     },
     {
       id: "gap-2",
       category: "screening",
-      title: "6-Month Postpartum Thyroiditis TSH Screening",
-      recommendation: "Given previous postpartum thyroid instability, follow-up serum TSH levels are indicated.",
-      evidenceSource: "American Thyroid Association Postpartum Guidelines",
+      title: "Epinephrine Auto-Injector (EpiPen Jr. 0.15mg) Verification",
+      recommendation: "Verify presence of active, unexpired 0.15mg EpiPen Jr. at home and school. Review correct injection technique with patient's mother.",
+      evidenceSource: "Canadian Paediatric Society Anaphylaxis Guidelines",
       status: "Due",
       dueDate: "2026-08-01",
-      chronicConditionTag: "Postpartum Thyroiditis Risk",
-      severity: "medium"
+      chronicConditionTag: "Peanut Anaphylaxis",
+      severity: "high"
     },
     {
       id: "gap-3",
       category: "screening",
-      title: "Cervical Cancer Screening (Pap Smear)",
-      recommendation: "Triennial liquid-based cytology screening indicated for adult females aged 25-69.",
-      evidenceSource: "Canadian Task Force on Preventive Health Care",
+      title: "Childhood Immunization Status Verification",
+      recommendation: "Verify completion of school-entry booster immunizations (DTaP-IPV, MMRV) required under the Immunization of School Pupils Act (ISPA).",
+      evidenceSource: "NACI Publicly Funded Immunization Schedules",
       status: "Overdue",
       dueDate: "2026-04-15",
-      chronicConditionTag: "General Preventive Screen",
+      chronicConditionTag: "General Pediatric Preventive Screen",
       severity: "medium"
     },
     {
       id: "gap-4",
       category: "screening",
-      title: "Postpartum Depression Index (EPDS) Review",
-      recommendation: "Score postpartum anxiety and depressive symptoms at key pediatric check intervals.",
-      evidenceSource: "SOGC Maternal Mental Health Recommendations",
+      title: "Atopic Dermatitis Management & Barrier Skin Hydration Review",
+      recommendation: "Review daily fragrance-free skin hydration routine and confirm correct application of topical anti-inflammatory creams for flare-ups.",
+      evidenceSource: "Canadian Dermatology Association Eczema Guidelines",
       status: "Completed",
       dueDate: "2026-05-10",
-      chronicConditionTag: "Postpartum Anxiety (PPA)",
-      severity: "high"
+      chronicConditionTag: "Atopic Dermatitis (Eczema)",
+      severity: "medium"
     }
   ]
 };

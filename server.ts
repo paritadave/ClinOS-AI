@@ -307,54 +307,54 @@ let patients = [
   },
   {
     id: "pat-03",
-    name: "Emily Chen",
-    birthDate: "1997-03-03",
-    phn: "8876-123-999", // OHIP
+    name: "Leo Thompson",
+    birthDate: "2018-06-12",
+    phn: "7741-235-888", // OHIP
     province: "Ontario",
-    gender: "Female",
-    pregnancyStatus: "Breastfeeding",
-    allergies: ["Latex", "Amoxicillin"],
-    conditions: ["Asthma (Moderate)", "Postpartum Anxiety"],
+    gender: "Male",
+    pregnancyStatus: "None",
+    allergies: ["Peanuts (Severe)", "Amoxicillin"],
+    conditions: ["Asthma (Mild Persistent)", "Atopic Dermatitis"],
     currentMedications: [
       {
         id: "med-6",
         name: "Salbutamol (Ventolin)",
         dosage: "100mcg",
-        frequency: "1-2 Puffs inhaled Q4-6H PRN",
+        frequency: "1-2 Puffs inhaled Q4H PRN for cough/wheeze",
         status: "Active",
         prescribedBy: "Dr. Alistair Vance",
-        startDate: "2021-03-12",
-        notes: "Rescue inhaler for acute dyspnea",
+        startDate: "2023-04-12",
+        notes: "Rescue inhaler. Use with aerochamber spacer.",
         adherence: "Good"
       },
       {
         id: "med-7",
-        name: "Sertraline (Zoloft)",
-        dosage: "50mg",
-        frequency: "Once Daily",
+        name: "Fluticasone (Flovent)",
+        dosage: "125mcg",
+        frequency: "1 Puff BID (Twice Daily)",
         status: "Active",
         prescribedBy: "Dr. Alistair Vance",
-        startDate: "2026-04-02",
-        notes: "For postpartum anxiety. Monitor baby for excessive somnolence.",
+        startDate: "2024-10-15",
+        notes: "Controller inhaler. Rinse mouth with water after use.",
         adherence: "Good"
       }
     ],
     labs: [
       {
         id: "lab-8",
-        testName: "eGFR (Estimated GFR)",
+        testName: "Peanut IgE Antibody",
         date: "2026-05-10",
-        value: "115",
-        referenceRange: "> 90 mL/min/1.73m²",
-        status: "Normal"
+        value: "45.2",
+        referenceRange: "< 0.35 kU/L",
+        status: "Abnormal"
       },
       {
         id: "lab-9",
-        testName: "Thyroid Stimulating Hormone (TSH)",
+        testName: "CBC (Eosinophils)",
         date: "2026-05-10",
-        value: "2.1",
-        referenceRange: "0.4 - 4.0 mIU/L",
-        status: "Normal"
+        value: "0.6",
+        referenceRange: "0.0 - 0.4 x10^9/L",
+        status: "Abnormal"
       }
     ],
     imaging: [
@@ -364,41 +364,41 @@ let patients = [
         area: "Chest PA/Lateral",
         date: "2026-03-15",
         status: "Completed",
-        report: "Lungs are clear. Heart size is normal. Pleural spaces are clear. No bony abnormalities. Negative for active pneumonia or congestive changes.",
-        summary: "Normal chest X-ray. Clear lung fields."
+        report: "Lungs are clear and well-expanded. No consolidation, pleural effusion, or pneumothorax. Heart size is normal. Bony thorax is intact.",
+        summary: "Normal chest X-ray. Clear pediatric lung fields."
       }
     ],
     referrals: [
       {
         id: "ref-5",
-        specialty: "Lactation Consultant",
-        consultant: "Sarah Kelly, IBCLC",
+        specialty: "Pediatric Allergist",
+        consultant: "Dr. Timothy Vance, MD FRCPC",
         date: "2026-04-10",
         status: "Completed",
-        notes: "Establish healthy latch and review medication transfer to milk"
+        notes: "Confirmed peanut anaphylaxis risk. Epipen Jr. prescribed."
       }
     ],
     procedures: [],
     symptomTrends: [
-      { date: "2026-04-01", severity: 7, symptomName: "Postpartum Anxiety", notes: "Severe worry, poor sleep, panic episodes", metricValue: 410, metricUnit: "L/min (Peak Flow)" },
-      { date: "2026-05-01", severity: 5, symptomName: "Postpartum Anxiety", notes: "Sertraline started, starting to take effect", metricValue: 430, metricUnit: "L/min (Peak Flow)" },
-      { date: "2026-06-01", severity: 3, symptomName: "Postpartum Anxiety", notes: "Significant improvement, stable", metricValue: 445, metricUnit: "L/min (Peak Flow)" },
-      { date: "2026-07-15", severity: 2, symptomName: "Postpartum Anxiety", notes: "Well-controlled, sleeping better", metricValue: 460, metricUnit: "L/min (Peak Flow)" },
-      { date: "2026-04-10", severity: 4, symptomName: "Asthma Wheezing", notes: "Spring pollen trigger, coughing" },
-      { date: "2026-05-10", severity: 2, symptomName: "Asthma Wheezing", notes: "Good peak flow readings, clear" },
-      { date: "2026-07-15", severity: 1, symptomName: "Asthma Wheezing", notes: "Asymptomatic, chest resonant" }
+      { date: "2026-04-01", severity: 4, symptomName: "Asthma Cough", notes: "Wheezing during outdoor active play", metricValue: 210, metricUnit: "L/min (Peak Flow)" },
+      { date: "2026-05-01", severity: 3, symptomName: "Asthma Cough", notes: "Flovent controller adjusted", metricValue: 220, metricUnit: "L/min (Peak Flow)" },
+      { date: "2026-06-01", severity: 1, symptomName: "Asthma Cough", notes: "Asymptomatic, stable on BID Flovent", metricValue: 230, metricUnit: "L/min (Peak Flow)" },
+      { date: "2026-07-15", severity: 2, symptomName: "Asthma Cough", notes: "Mild cough after soccer practice", metricValue: 225, metricUnit: "L/min (Peak Flow)" },
+      { date: "2026-04-10", severity: 5, symptomName: "Atopic Dermatitis (Eczema)", notes: "Dry patches on inner elbows and knees, itchy" },
+      { date: "2026-05-10", severity: 3, symptomName: "Atopic Dermatitis (Eczema)", notes: "Improving with daily topical barrier creams" },
+      { date: "2026-07-15", severity: 2, symptomName: "Atopic Dermatitis (Eczema)", notes: "Mild dry patches, well managed" }
     ],
     medicationHistory: [
       {
         id: "med-h5",
-        name: "Lorazepam",
-        dosage: "1mg",
-        frequency: "Once daily HS PRN",
+        name: "Amoxicillin Oral Suspension",
+        dosage: "250mg/5mL",
+        frequency: "5mL TID",
         status: "Discontinued",
         prescribedBy: "Dr. Alistair Vance",
-        startDate: "2026-03-01",
-        endDate: "2026-04-10",
-        changeReason: "Breastfeeding safety transfer concern (Risk of infant sedation/respiratory depression)"
+        startDate: "2025-12-05",
+        endDate: "2025-12-07",
+        changeReason: "Allergic reaction (Developed hives and mild facial edema after 4th dose. Switched to Azithromycin.)"
       }
     ]
   }
@@ -826,22 +826,22 @@ Patient: Okay, I will definitely follow up with those. Let's get the referral do
       };
     } else if (patientId === "pat-03") {
       return {
-        transcript: `Doctor: Hi Emily, let's review your asthma control and your postpartum wellness today. How have things been since starting the Sertraline for your postpartum anxiety?
-Patient: Hello Doctor. Honestly, the Sertraline has helped my anxiety so much, I am sleeping much better. But my asthma flared up a bit with the spring pollen last week. I had to use my Ventolin rescue inhaler twice.
-Doctor: I'm glad the Sertraline is working well, Emily. For your asthma, since you've had a minor flare and been using your rescue inhaler, we must review and co-design your Written Asthma Action Plan. This will help you know exactly what to do in green, yellow, and red zones. Also, your annual cervical Pap smear screening is currently overdue. Let's schedule that as well.
-Patient: Yes, let's do both of those to stay safe.`,
+        transcript: `Doctor: Good morning, Leo! And good morning to your mom as well. Let's talk about how your asthma has been and how your skin is doing.
+Patient's Mom: Hello, Doctor. Leo's asthma has been quite good, but he had a cough after soccer practice last week, and we had to use his rescue Ventolin inhaler twice. His eczema is flaring up a bit on his inner elbows too.
+Doctor: I understand. For an 8-year-old child with mild persistent asthma, we must review his Written Asthma Action Plan so you and his school teachers know exactly what to do. Also, since he has a known severe peanut allergy, we need to verify that his epinephrine auto-injector (EpiPen Jr.) prescription is current and that he has one for school.
+Patient's Mom: Yes, please! Let's do that. We also need to review his childhood vaccination schedule.`,
         preventiveCareAlerts: [
           {
-            title: "🏃 Written Asthma Action Plan (WAAP) Review Overdue",
+            title: "🏃 Pediatric Written Asthma Action Plan (WAAP) Review",
             status: "Overdue",
-            details: "Canadian Thoracic Society guidelines mandate co-design of a written self-management plan for all asthma patients experiencing symptoms or PRN rescue use.",
-            actionRequired: "Complete a personalized Written Asthma Action Plan with the patient today."
+            details: "Canadian Thoracic Society pediatric guidelines mandate co-design of a written self-management plan for pediatric asthma patients to guide parent and school action.",
+            actionRequired: "Complete a personalized pediatric Written Asthma Action Plan with Leo and his mother today."
           },
           {
-            title: "🔬 Cervical Cancer Screen (Pap Smear) Due",
+            title: "🥜 Epinephrine Auto-Injector (EpiPen Jr. 0.15mg) Verification",
             status: "Overdue",
-            details: "Cervical cancer screening via Pap smear cytologies is recommended every 3 years for individuals aged 25-69 to detect cellular dysplasias early.",
-            actionRequired: "Schedule or perform a cervical cytology test (Pap smear) today."
+            details: "Standard of care for children with severe IgE-mediated peanut allergy is to maintain active, non-expired epinephrine auto-injectors at home and school.",
+            actionRequired: "Verify EpiPen Jr. expiry dates and issue updated prescription if close to expiration."
           }
         ]
       };
