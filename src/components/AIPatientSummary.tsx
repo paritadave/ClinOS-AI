@@ -83,44 +83,79 @@ export default function AIPatientSummary({ patient }: AIPatientSummaryProps) {
   const summary = getSummaryData();
 
   return (
-    <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl border border-slate-700 shadow-md p-5 relative overflow-hidden">
+    <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl border border-slate-700 shadow-md p-5 relative overflow-hidden" id="ai-patient-summary-card">
       {/* Decorative background grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#334155_1px,transparent_1px),linear-gradient(to_bottom,#334155_1px,transparent_1px)] bg-[size:30px_30px] opacity-10" />
 
-      <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-5">
-        {/* Left Column: Demographics & Diagnostic Title */}
-        <div className="space-y-2 max-w-xl">
-          <div className="flex items-center gap-2.5">
-            <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-400/20 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+      <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6">
+        {/* Left Column: Demographics, Highlights & Diagnoses */}
+        <div className="space-y-3.5 max-w-xl flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-400/20 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1" id="badge-ai-briefing">
               <Sparkles className="w-3 h-3 text-indigo-400" />
               ClinOS AI Clinical Briefing
             </span>
-            <span className="text-[10px] text-slate-400 font-mono">Last updated: Today</span>
+            <span className="text-[10px] text-slate-400 font-mono" id="summary-update-time">Last updated: Today</span>
           </div>
 
           <div>
-            <h2 className="text-base font-bold tracking-tight text-white flex items-center gap-2">
-              {patient.name} <span className="text-slate-400 text-xs font-normal">({summary.ageGender})</span>
+            <h2 className="text-lg font-extrabold tracking-tight text-white flex items-center gap-2" id="summary-patient-name">
+              {patient.name} 
+              <span className="text-slate-400 text-xs font-normal">
+                ({summary.ageGender} • DOB: {patient.birthDate})
+              </span>
             </h2>
-            <p className="text-xs text-slate-300 font-semibold mt-0.5 flex items-center gap-1.5">
-              <span className="text-indigo-400 font-mono font-bold">{summary.title}</span> • {summary.gestation}
-            </p>
+            <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-slate-300 font-semibold" id="summary-subtitle">
+              <span className="text-indigo-400 font-mono font-bold uppercase tracking-wider">{summary.title}</span>
+              <span className="text-slate-500">•</span>
+              <span className="bg-slate-800 text-slate-200 border border-slate-700 px-2 py-0.5 rounded-md font-mono text-[10px]">
+                PHN: {patient.phn}
+              </span>
+              {patient.pregnancyStatus !== "None" && (
+                <>
+                  <span className="text-slate-500">•</span>
+                  <span className="bg-rose-950/60 text-rose-300 border border-rose-900/40 px-2 py-0.5 rounded-md font-mono text-[10px] font-bold uppercase">
+                    {patient.pregnancyStatus}
+                  </span>
+                </>
+              )}
+            </div>
           </div>
 
-          <div className="bg-slate-800/60 rounded-xl px-3.5 py-2.5 border border-slate-700/50 text-[11.5px] leading-relaxed text-slate-300 font-medium">
-            <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider block mb-1">Key Context Highlights</span>
-            {summary.keyStats}
+          {/* Active Diagnoses / Comorbidities */}
+          <div id="summary-conditions-section">
+            <span className="text-slate-400 text-[9px] uppercase font-extrabold tracking-wider block mb-1.5">
+              Active Diagnoses & Comorbidities
+            </span>
+            <div className="flex flex-wrap gap-1.5" id="summary-conditions-tags">
+              {summary.comorbidities.map((condition, idx) => (
+                <span 
+                  key={idx} 
+                  className="bg-slate-800/80 hover:bg-slate-800 text-slate-200 border border-slate-700/60 text-[10.5px] px-2.5 py-0.5 rounded-md font-medium tracking-wide transition-colors"
+                >
+                  {condition}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Key Highlights */}
+          <div className="bg-slate-800/40 rounded-xl px-4 py-3 border border-slate-700/40 text-xs leading-relaxed text-slate-300 font-medium" id="summary-highlights-box">
+            <span className="text-indigo-300 text-[9px] uppercase font-extrabold tracking-wider block mb-1">
+              Key Diagnostic Highlights & Labs
+            </span>
+            <p className="text-slate-200 leading-relaxed font-sans">{summary.keyStats}</p>
           </div>
         </div>
 
         {/* Right Column: Dynamic Bullet Recommendations */}
-        <div className="flex-1 max-w-md bg-white/5 backdrop-blur-xs rounded-xl p-4 border border-white/10 space-y-3">
-          <span className="text-indigo-300 text-[10px] uppercase font-bold tracking-wider flex items-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400" />
-            AI Co-Pilot Recommendations & Care Gaps
+        <div className="w-full md:w-80 bg-white/5 backdrop-blur-xs rounded-xl p-4 border border-white/10 space-y-3 shrink-0" id="summary-recommendations-box">
+          <span className="text-indigo-300 text-[10px] uppercase font-bold tracking-wider flex items-center gap-1.5" id="title-ai-gaps">
+            <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
+            AI Co-Pilot Care Gaps
           </span>
 
-          <ul className="space-y-2 text-[11px] text-slate-200">
+          <ul className="space-y-2 text-[11px] text-slate-200" id="list-recommendations">
             {summary.recommendations.map((rec, i) => (
               <li key={i} className="flex items-start gap-2 leading-relaxed">
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0" />
@@ -132,7 +167,7 @@ export default function AIPatientSummary({ patient }: AIPatientSummaryProps) {
       </div>
 
       {/* Safety Alert Strip */}
-      <div className="mt-4 pt-3.5 border-t border-slate-800 flex items-start gap-2.5 text-rose-300 text-xs font-medium">
+      <div className="mt-4 pt-3.5 border-t border-slate-800 flex items-start gap-2.5 text-rose-300 text-xs font-medium" id="summary-safety-strip">
         <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
         <span className="leading-relaxed bg-rose-950/40 border border-rose-900/30 rounded-lg px-2.5 py-1 w-full text-rose-200">
           {summary.allergiesAlert}

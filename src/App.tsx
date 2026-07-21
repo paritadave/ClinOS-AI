@@ -48,7 +48,7 @@ export default function App() {
   const [selectedPatientId, setSelectedPatientId] = useState<string>("pat-01");
   const [activeRole, setActiveRole] = useState<UserRole>(UserRole.PHYSICIAN);
   const [activeModule, setActiveModule] = useState<"dashboard" | "timeline" | "scribe" | "safety" | "intake" | "compliance" | "appointments" | "patientSummary">("dashboard");
-  const [layoutMode, setLayoutMode] = useState<"tabs" | "bento">("bento");
+  const [layoutMode, setLayoutMode] = useState<"tabs" | "bento">("tabs");
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(FALLBACK_AUDIT_LOGS);
   const [systemHealth, setSystemHealth] = useState<any>(FALLBACK_SYSTEM_HEALTH);
   const [isLoading, setIsLoading] = useState<boolean>(true);
