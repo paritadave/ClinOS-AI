@@ -1809,6 +1809,10 @@ app.get("/api/system-health", (req, res) => {
 
 // Vite Middleware for dev or serve static for production
 const startServer = async () => {
+  if (process.env.VERCEL) {
+    return;
+  }
+
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -1831,3 +1835,5 @@ const startServer = async () => {
 startServer().catch((err) => {
   console.error("Failed to start server:", err);
 });
+
+export default app;

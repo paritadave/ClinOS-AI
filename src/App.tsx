@@ -968,9 +968,18 @@ export default function App() {
       </main>
 
       {/* Footer Credentials */}
-      <footer className="h-12 bg-slate-50 border-t border-slate-200 px-6 flex items-center justify-between text-[10px] font-medium text-slate-400 uppercase tracking-widest">
-        <span>PIPEDA / PHIPA Compliant • Data Resident in Canada (CAN-Central)</span>
-        <span>System Health: 99.9% • Agent Layer Active</span>
+      <footer className="py-4 md:py-3 bg-slate-50 border-t border-slate-200 px-6 flex flex-col md:flex-row items-center justify-between text-[10px] font-medium text-slate-400 gap-3 shrink-0">
+        <div className="flex items-center gap-2 uppercase tracking-widest">
+          <span>PIPEDA / PHIPA Compliant • Data Resident in Canada (CAN-Central)</span>
+        </div>
+        <div className="flex items-center gap-1.5 text-slate-500 bg-slate-100 border border-slate-200 rounded-full px-3 py-1 font-mono text-[9px]">
+          <span className="font-bold text-slate-400 uppercase tracking-wider">Tech Stack:</span>
+          <span>React 18 • Vite • TypeScript • Express • Tailwind CSS • Google OAuth • Gmail API • Gemini AI</span>
+        </div>
+        <div className="flex items-center gap-1.5 uppercase tracking-wider font-bold text-indigo-600">
+          <HeartPulse className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
+          <span>Built by Parita Dave</span>
+        </div>
       </footer>
 
       {/* ClinOS Intelligent Floating Quick Actions Hub */}
