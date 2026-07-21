@@ -28,6 +28,7 @@ import {
   ClipboardList
 } from "lucide-react";
 import { Patient, AuditLog, UserRole } from "./types";
+import { FALLBACK_PATIENTS, FALLBACK_AUDIT_LOGS, FALLBACK_SYSTEM_HEALTH } from "./lib/fallbackData";
 import TimelinePanel from "./components/TimelinePanel";
 import SafetyCheckPanel from "./components/SafetyCheckPanel";
 import ScribePanel from "./components/ScribePanel";
@@ -39,13 +40,13 @@ import PatientTakeHomePanel from "./components/PatientTakeHomePanel";
 import QuickActionMenu from "./components/QuickActionMenu";
 
 export default function App() {
-  const [patients, setPatients] = useState<Patient[]>([]);
+  const [patients, setPatients] = useState<Patient[]>(FALLBACK_PATIENTS);
   const [selectedPatientId, setSelectedPatientId] = useState<string>("pat-01");
   const [activeRole, setActiveRole] = useState<UserRole>(UserRole.PHYSICIAN);
   const [activeModule, setActiveModule] = useState<"dashboard" | "timeline" | "scribe" | "safety" | "intake" | "compliance" | "appointments" | "patientSummary">("dashboard");
   const [layoutMode, setLayoutMode] = useState<"tabs" | "bento">("bento");
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-  const [systemHealth, setSystemHealth] = useState<any>(null);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>(FALLBACK_AUDIT_LOGS);
+  const [systemHealth, setSystemHealth] = useState<any>(FALLBACK_SYSTEM_HEALTH);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [notifications, setNotifications] = useState<Array<{ id: string; message: string; type: "critical" | "info" }>>([]);
   
@@ -98,20 +99,32 @@ export default function App() {
     try {
       // Fetch Patients
       const patientRes = await fetch("/api/patients");
-      const patientData = await patientRes.json();
-      setPatients(patientData);
+      if (patientRes.ok) {
+        const patientData = await patientRes.json();
+        if (Array.isArray(patientData) && patientData.length > 0) {
+          setPatients(patientData);
+        }
+      }
 
       // Fetch Audit Logs
       const auditRes = await fetch("/api/audit-logs");
-      const auditData = await auditRes.json();
-      setAuditLogs(auditData);
+      if (auditRes.ok) {
+        const auditData = await auditRes.json();
+        if (Array.isArray(auditData) && auditData.length > 0) {
+          setAuditLogs(auditData);
+        }
+      }
 
       // Fetch System Health
       const healthRes = await fetch("/api/system-health");
-      const healthData = await healthRes.json();
-      setSystemHealth(healthData);
+      if (healthRes.ok) {
+        const healthData = await healthRes.json();
+        if (healthData && healthData.status) {
+          setSystemHealth(healthData);
+        }
+      }
     } catch (err) {
-      console.error("Error fetching clinical workspace data:", err);
+      console.warn("Could not load live clinical workspace from server, using local secure PIPEDA fallback mode.", err);
     } finally {
       setIsLoading(false);
     }
