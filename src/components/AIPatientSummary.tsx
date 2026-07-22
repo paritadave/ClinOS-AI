@@ -82,14 +82,177 @@ export default function AIPatientSummary({ patient }: AIPatientSummaryProps) {
 
   const summary = getSummaryData();
 
+  // Helper to generate dynamic, smart, color-coded badges with clinical categories
+  const getSmartConditionTag = (condition: string) => {
+    const c = condition.toLowerCase();
+    
+    if (
+      c.includes("hypertension") || 
+      c.includes("fibrillation") || 
+      c.includes("renal") || 
+      c.includes("kidney") || 
+      c.includes("anaphylaxis") || 
+      c.includes("peanut")
+    ) {
+      let category = "High Risk";
+      let dotColor = "bg-rose-500";
+      let badgeStyle = "bg-rose-950/40 text-rose-200 border-rose-900/40 hover:bg-rose-900/30";
+      
+      if (c.includes("anaphylaxis") || c.includes("peanut")) {
+        category = "Critical Allergy";
+        dotColor = "bg-red-500 animate-pulse";
+        badgeStyle = "bg-red-950/50 text-red-200 border-red-900/40 hover:bg-red-900/30";
+      } else if (c.includes("kidney") || c.includes("renal")) {
+        category = "Renal Stage 4";
+        dotColor = "bg-amber-500";
+        badgeStyle = "bg-amber-950/40 text-amber-200 border-amber-900/40 hover:bg-amber-900/30";
+      } else {
+        category = "Cardio/Vascular";
+        dotColor = "bg-orange-500";
+        badgeStyle = "bg-orange-950/40 text-orange-200 border-orange-900/40 hover:bg-orange-900/30";
+      }
+
+      return { category, dotColor, badgeStyle };
+    }
+    
+    if (c.includes("diabetes") || c.includes("asthma") || c.includes("glucose")) {
+      let category = "Metabolic";
+      if (c.includes("asthma")) category = "Respiratory";
+      return {
+        category,
+        dotColor: "bg-indigo-400",
+        badgeStyle: "bg-indigo-950/40 text-indigo-200 border-indigo-900/40 hover:bg-indigo-900/30"
+      };
+    }
+
+    if (c.includes("pain") || c.includes("dermatitis") || c.includes("eczema") || c.includes("back")) {
+      let category = "Musculoskeletal";
+      if (c.includes("dermatitis") || c.includes("eczema")) category = "Dermatology";
+      return {
+        category,
+        dotColor: "bg-teal-400",
+        badgeStyle: "bg-teal-950/40 text-teal-200 border-teal-900/40 hover:bg-teal-900/30"
+      };
+    }
+
+    return {
+      category: "Active EMR",
+      dotColor: "bg-slate-400",
+      badgeStyle: "bg-slate-800/80 text-slate-200 border-slate-700/60 hover:bg-slate-850"
+    };
+  };
+
+  // Vitals history snapshot generator for each patient
+  const getVitalsData = () => {
+    if (patient.id === "pat-01" || patient.name.includes("Sarah")) {
+      return [
+        {
+          label: "Heart Rate",
+          value: "76 bpm",
+          history: ["72", "75", "76"],
+          trend: "Stable • Sinus Rhythm",
+          status: "normal"
+        },
+        {
+          label: "Blood Pressure",
+          value: "126/82 mmHg",
+          history: ["130/85", "128/84", "126/82"],
+          trend: "Improving (Methyldopa effect)",
+          status: "normal"
+        },
+        {
+          label: "Weight History",
+          value: "74.2 kg",
+          history: ["71.5", "72.8", "74.2"],
+          trend: "+2.7 kg over 8 wks (Gestational curve)",
+          status: "normal"
+        }
+      ];
+    } else if (patient.id === "pat-02" || patient.name.includes("Robert")) {
+      return [
+        {
+          label: "Heart Rate",
+          value: "84 bpm",
+          history: ["78", "92", "84"],
+          trend: "Irregular AFib Baseline",
+          status: "warning"
+        },
+        {
+          label: "Blood Pressure",
+          value: "142/88 mmHg",
+          history: ["152/94", "146/90", "142/88"],
+          trend: "Elevated (Improving)",
+          status: "warning"
+        },
+        {
+          label: "Weight History",
+          value: "88.5 kg",
+          history: ["90.1", "89.3", "88.5"],
+          trend: "-1.6 kg (Gradual fluid reduction)",
+          status: "normal"
+        }
+      ];
+    } else if (patient.id === "pat-03" || patient.name.includes("Leo")) {
+      return [
+        {
+          label: "Heart Rate",
+          value: "92 bpm",
+          history: ["95", "90", "92"],
+          trend: "Normal pediatric sinus rhythm",
+          status: "normal"
+        },
+        {
+          label: "Blood Pressure",
+          value: "105/65 mmHg",
+          history: ["102/62", "106/64", "105/65"],
+          trend: "Normotensive pediatric baseline",
+          status: "normal"
+        },
+        {
+          label: "Weight History",
+          value: "26.8 kg",
+          history: ["25.4", "26.1", "26.8"],
+          trend: "Consistent growth percentile",
+          status: "normal"
+        }
+      ];
+    } else {
+      return [
+        {
+          label: "Heart Rate",
+          value: "72 bpm",
+          history: ["70", "72", "71"],
+          trend: "Stable",
+          status: "normal"
+        },
+        {
+          label: "Blood Pressure",
+          value: "120/80 mmHg",
+          history: ["122/82", "118/78", "120/80"],
+          trend: "Normotensive baseline",
+          status: "normal"
+        },
+        {
+          label: "Weight History",
+          value: "70.0 kg",
+          history: ["69.5", "70.2", "70.0"],
+          trend: "Stable",
+          status: "normal"
+        }
+      ];
+    }
+  };
+
+  const vitals = getVitalsData();
+
   return (
     <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl border border-slate-700 shadow-md p-5 relative overflow-hidden" id="ai-patient-summary-card">
       {/* Decorative background grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#334155_1px,transparent_1px),linear-gradient(to_bottom,#334155_1px,transparent_1px)] bg-[size:30px_30px] opacity-10" />
 
       <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6">
-        {/* Left Column: Demographics, Highlights & Diagnoses */}
-        <div className="space-y-3.5 max-w-xl flex-1">
+        {/* Left Column: Demographics, Highlights, Diagnoses & Vitals */}
+        <div className="space-y-4 max-w-xl flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-400/20 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1" id="badge-ai-briefing">
               <Sparkles className="w-3 h-3 text-indigo-400" />
@@ -122,25 +285,86 @@ export default function AIPatientSummary({ patient }: AIPatientSummaryProps) {
             </div>
           </div>
 
-          {/* Active Diagnoses / Comorbidities */}
-          <div id="summary-conditions-section">
-            <span className="text-slate-400 text-[9px] uppercase font-extrabold tracking-wider block mb-1.5">
-              Active Diagnoses & Comorbidities
+          {/* Active Diagnoses / Comorbidities with Smart Tags */}
+          <div id="summary-conditions-section" className="space-y-1.5">
+            <span className="text-slate-400 text-[9px] uppercase font-extrabold tracking-wider block">
+              Active Diagnoses & Comorbidities (Categorized)
             </span>
-            <div className="flex flex-wrap gap-1.5" id="summary-conditions-tags">
-              {summary.comorbidities.map((condition, idx) => (
-                <span 
-                  key={idx} 
-                  className="bg-slate-800/80 hover:bg-slate-800 text-slate-200 border border-slate-700/60 text-[10.5px] px-2.5 py-0.5 rounded-md font-medium tracking-wide transition-colors"
-                >
-                  {condition}
-                </span>
-              ))}
+            <div className="flex flex-wrap gap-2 animate-fade-in" id="summary-conditions-tags">
+              {summary.comorbidities.map((condition, idx) => {
+                const tagInfo = getSmartConditionTag(condition);
+                return (
+                  <span 
+                    key={idx} 
+                    className={`${tagInfo.badgeStyle} border text-[11px] px-2.5 py-1 rounded-xl font-semibold tracking-wide transition-all flex items-center gap-1.5`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${tagInfo.dotColor}`} />
+                    <span>{condition}</span>
+                    <span className="text-[8px] opacity-65 font-mono font-bold tracking-wider uppercase bg-white/5 px-1.5 py-0.2 rounded border border-white/5">
+                      {tagInfo.category}
+                    </span>
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Current Vitals Section */}
+          <div id="summary-vitals-section" className="space-y-2">
+            <span className="text-slate-400 text-[9px] uppercase font-extrabold tracking-wider block">
+              Current Vitals & Longitudinal Trends
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3" id="vitals-grid">
+              {vitals.map((vital, idx) => {
+                const isWarning = vital.status === "warning";
+                const isCritical = vital.status === "critical";
+                const statusColor = isCritical 
+                  ? "text-rose-400" 
+                  : isWarning 
+                    ? "text-amber-400" 
+                    : "text-emerald-400";
+                const dotColor = isCritical
+                  ? "bg-rose-500 animate-pulse"
+                  : isWarning
+                    ? "bg-amber-500"
+                    : "bg-emerald-500";
+
+                return (
+                  <div 
+                    key={idx} 
+                    className="bg-slate-800/30 border border-slate-700/40 p-3 rounded-xl flex flex-col justify-between hover:border-slate-650 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400 text-[9.5px] font-bold uppercase tracking-wider">{vital.label}</span>
+                      <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+                    </div>
+                    <div className="mt-1 flex flex-col">
+                      <span className="text-lg font-extrabold tracking-tight text-white">{vital.value}</span>
+                      <span className={`text-[9.5px] font-semibold ${statusColor} leading-tight mt-0.5`}>{vital.trend}</span>
+                    </div>
+                    
+                    {/* Visual History Flow */}
+                    <div className="mt-2.5 pt-2 border-t border-slate-800/60 flex items-center justify-between text-[9.5px] font-mono text-slate-400">
+                      <span>History:</span>
+                      <div className="flex items-center gap-1">
+                        {vital.history.map((val, hIdx) => (
+                          <span key={hIdx} className="flex items-center">
+                            <span className={hIdx === vital.history.length - 1 ? "text-slate-200 font-extrabold" : "text-slate-500"}>
+                              {val}
+                            </span>
+                            {hIdx < vital.history.length - 1 && <span className="text-slate-600 mx-0.5">→</span>}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
           {/* Key Highlights */}
-          <div className="bg-slate-800/40 rounded-xl px-4 py-3 border border-slate-700/40 text-xs leading-relaxed text-slate-300 font-medium" id="summary-highlights-box">
+          <div className="bg-slate-800/40 rounded-xl px-4 py-3 border border-slate-700/40 text-xs leading-relaxed text-slate-300 font-medium animate-fade-in" id="summary-highlights-box">
             <span className="text-indigo-300 text-[9px] uppercase font-extrabold tracking-wider block mb-1">
               Key Diagnostic Highlights & Labs
             </span>

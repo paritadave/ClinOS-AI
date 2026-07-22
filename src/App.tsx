@@ -592,39 +592,13 @@ export default function App() {
         </div>
       </header>
 
-      {/* Clinical Workspace Layout Mode Selector Bar */}
+      {/* Clinical Workspace Header Bar */}
       <div id="layout-mode-selector" className="bg-slate-50 border-b border-slate-200 px-6 py-3 flex items-center justify-between gap-4 text-xs font-medium text-slate-500 shadow-xs shrink-0 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-bold text-slate-400 uppercase tracking-wider mr-1">EMR Workspace View:</span>
-          <button
-            onClick={() => {
-              setLayoutMode("bento");
-              handleLogAudit("TOGGLE_LAYOUT", "Swapped EMR workspace view to Unified Bento Grid mode.");
-            }}
-            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
-              layoutMode === "bento"
-                ? "bg-blue-50 border border-blue-200 text-blue-700 font-bold shadow-xs"
-                : "text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            <LayoutGrid className="w-3.5 h-3.5" />
-            <span>Unified Bento Grid Dashboard</span>
-          </button>
-          
-          <button
-            onClick={() => {
-              setLayoutMode("tabs");
-              handleLogAudit("TOGGLE_LAYOUT", "Swapped EMR workspace view to Tabbed Workstations Mode.");
-            }}
-            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
-              layoutMode === "tabs"
-                ? "bg-blue-50 border border-blue-200 text-blue-700 font-bold shadow-xs"
-                : "text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            <List className="w-3.5 h-3.5" />
-            <span>Tabbed Workstations Mode</span>
-          </button>
+          <span className="font-extrabold text-slate-600 uppercase tracking-wider mr-2 flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-xs">
+            <LayoutGrid className="w-3.5 h-3.5 text-indigo-500" />
+            <span>Interactive EMR Workstations</span>
+          </span>
 
           <span className="h-4 w-px bg-slate-300 mx-2 hidden sm:inline-block"></span>
 
@@ -633,9 +607,9 @@ export default function App() {
               setExpandedCardId("compliance");
               handleLogAudit("OPEN_COMPLIANCE_AUDIT", "Opened full-screen Regulatory Compliance & Safety Audit Logs.");
             }}
-            className="hover:text-emerald-650 transition-colors cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-100 border border-transparent hover:border-slate-200"
+            className="hover:text-emerald-750 hover:bg-emerald-50 text-emerald-700 font-bold transition-all cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50/40 shadow-xs hover:scale-[1.01]"
           >
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <ShieldCheck className="w-4 h-4 text-emerald-600 animate-pulse" />
             <span>Practice Compliance & Audit Logs</span>
           </button>
         </div>
@@ -881,73 +855,73 @@ export default function App() {
 
           {/* WORKSPACE VIEW ROUTER */}
           <AnimatePresence mode="wait">
-            {layoutMode === "bento" ? (
-              <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start animate-fade-in" key="bento-grid-view">
-                {getBentoCards().map((card) => (
-                  <motion.div
-                    key={card.id}
-                    id={`bento-card-${card.id}`}
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className={`${card.span} bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:shadow-md transition-all flex flex-col ${card.minHeight || "min-h-[400px]"}`}
-                  >
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4 shrink-0">
-                      <div className="flex items-center gap-2">
-                        <span className="p-1.5 bg-slate-50 rounded-lg text-slate-700">{card.icon}</span>
-                        <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">{card.title}</h3>
-                      </div>
+            <div className="space-y-6 animate-fade-in" key="tabbed-workstation-view">
+              {/* Tab Switcher Bar */}
+              <div className="bg-white p-2 border border-slate-200 rounded-2xl flex items-center justify-between shadow-xs">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {getBentoCards().map((card) => {
+                    const isActive = activeModule === card.focusModule;
+                    return (
                       <button
+                        key={card.id}
                         onClick={() => {
-                          setExpandedCardId(card.id);
-                          handleLogAudit("EXPAND_MODULE", `Clinician expanded ${card.title} module to high-fidelity full-screen view.`);
+                          setActiveModule(card.focusModule as any);
+                          handleLogAudit("CHANGE_ACTIVE_MODULE", `Clinician focused workspace tab on ${card.title}.`);
                         }}
-                        className="p-1 hover:bg-slate-50 rounded text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-                        title="Expand view"
+                        className={`px-4 py-2 text-xs font-bold rounded-xl flex items-center gap-2 transition-all cursor-pointer ${
+                          isActive 
+                            ? "bg-[#0F172A] text-white shadow-sm" 
+                            : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                        }`}
                       >
-                        <Maximize2 className="w-3.5 h-3.5" />
+                        {card.icon}
+                        <span>{card.title}</span>
                       </button>
-                    </div>
-                    <div className="flex-1 overflow-auto min-h-0">
-                      {card.component}
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-6 animate-fade-in" key="tabbed-workstation-view">
-                {/* Tab Switcher Bar */}
-                <div className="bg-white p-2 border border-slate-200 rounded-2xl flex items-center justify-between shadow-xs">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    {getBentoCards().map((card) => {
-                      const isActive = activeModule === card.focusModule;
-                      return (
-                        <button
-                          key={card.id}
-                          onClick={() => {
-                            setActiveModule(card.focusModule as any);
-                            handleLogAudit("CHANGE_ACTIVE_MODULE", `Clinician focused workspace tab on ${card.title}.`);
-                          }}
-                          className={`px-4 py-2 text-xs font-bold rounded-xl flex items-center gap-2 transition-all cursor-pointer ${
-                            isActive 
-                              ? "bg-[#0F172A] text-white shadow-sm" 
-                              : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                          }`}
-                        >
-                          {card.icon}
-                          <span>{card.title}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                    );
+                  })}
                 </div>
+              </div>
 
-                {/* Selected Tab Active Workstation Panel */}
-                <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden min-h-[520px]">
-                  {getBentoCards().find(c => c.focusModule === activeModule)?.component}
-                </div>
+              {/* Selected Tab Active Workstation Panel */}
+              <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden min-h-[520px] flex flex-col">
+                {(() => {
+                  const card = getBentoCards().find(c => c.focusModule === activeModule);
+                  if (!card) return null;
+                  return (
+                    <>
+                      {/* Tab Content Header with Maximize/Minimize Option */}
+                      <div className="bg-slate-50 border-b border-slate-150 px-5 py-3.5 flex items-center justify-between shrink-0">
+                        <div className="flex items-center gap-2">
+                          <span className="p-1.5 bg-white border border-slate-200 rounded-lg text-slate-700 shadow-xs">
+                            {card.icon}
+                          </span>
+                          <span className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">
+                            {card.title} Workstation
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              setExpandedCardId(card.id);
+                              handleLogAudit("EXPAND_MODULE", `Clinician expanded ${card.title} module to high-fidelity full-screen view from tabbed workstation.`);
+                            }}
+                            className="text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                            title="Maximize Workstation"
+                          >
+                            <Maximize2 className="w-3.5 h-3.5 text-indigo-500" />
+                            <span>Full Screen</span>
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex-1 overflow-auto p-1">
+                        {card.component}
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
-            )}
+            </div>
           </AnimatePresence>
         </div>
       </main>
