@@ -126,8 +126,10 @@ export default function AppointmentScheduler({ patient, onRefresh, onLogAudit }:
     setIsLoading(true);
     try {
       const res = await apiFetch("/api/appointments");
-      const data = await res.json();
-      setAppointments(data);
+      if (res.ok) {
+        const data = await res.json();
+        setAppointments(Array.isArray(data) ? data : []);
+      }
     } catch (err) {
       console.error("Error fetching clinical appointments:", err);
     } finally {
@@ -186,7 +188,7 @@ export default function AppointmentScheduler({ patient, onRefresh, onLogAudit }:
   };
 
   // Filter appointments for active patient
-  const patientAppts = appointments.filter(a => a.patientId === patient.id);
+  const patientAppts = (Array.isArray(appointments) ? appointments : []).filter(a => a.patientId === patient.id);
 
   const timeSlots = [
     "08:30 AM", "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", 

@@ -75,16 +75,22 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
   const fetchAllData = async () => {
     try {
       const intRes = await apiFetch("/api/emr-integrations");
-      const intData = await intRes.json();
-      setIntegrations(intData);
+      if (intRes.ok) {
+        const intData = await intRes.json();
+        setIntegrations(Array.isArray(intData) ? intData : []);
+      }
 
       const logsRes = await apiFetch("/api/emr-sync-logs");
-      const logsData = await logsRes.json();
-      setSyncLogs(logsData);
+      if (logsRes.ok) {
+        const logsData = await logsRes.json();
+        setSyncLogs(Array.isArray(logsData) ? logsData : []);
+      }
 
       const linksRes = await apiFetch("/api/patient-intake-links");
-      const linksData = await linksRes.json();
-      setIntakeLinks(linksData);
+      if (linksRes.ok) {
+        const linksData = await linksRes.json();
+        setIntakeLinks(Array.isArray(linksData) ? linksData : []);
+      }
     } catch (err) {
       console.error("Error loading panel metrics:", err);
     }
@@ -194,7 +200,11 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
     }
   };
 
-  const activeIntegration = integrations.find(i => i.province === patient.province && i.status === "Connected");
+  const safeIntegrations = Array.isArray(integrations) ? integrations : [];
+  const safeIntakeLinks = Array.isArray(intakeLinks) ? intakeLinks : [];
+  const safeSyncLogs = Array.isArray(syncLogs) ? syncLogs : [];
+
+  const activeIntegration = safeIntegrations.find(i => i.province === patient.province && i.status === "Connected");
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col h-full animate-fade-in" id="history-dashboard-panel">
@@ -361,7 +371,7 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
               <div className="mt-4 border-t border-slate-200/60 pt-3">
                 <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold block mb-1">Live Delivery Monitor</span>
                 <div className="space-y-1.5 overflow-y-auto max-h-[100px] scrollbar-thin pr-1">
-                  {intakeLinks.filter(l => l.patientId === patient.id).map(l => (
+                  {safeIntakeLinks.filter(l => l.patientId === patient.id).map(l => (
                     <div key={l.id} className="flex items-center justify-between text-[10px] bg-white p-1.5 rounded-lg border border-slate-100">
                       <span className="font-semibold text-slate-600 flex items-center gap-1">
                         {l.sentVia === "SMS" ? <Smartphone className="w-2.5 h-2.5 text-blue-500" /> : l.sentVia === "Email" ? <Mail className="w-2.5 h-2.5 text-purple-500" /> : <QrCode className="w-2.5 h-2.5 text-indigo-500" />}
@@ -391,7 +401,7 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
                 <p className="text-[10px] text-slate-400 font-medium mb-3">Sync local charts securely with OSCAR & Accuro EMR networks</p>
 
                 <div className="space-y-2 mb-3">
-                  {integrations.map(int => (
+                  {safeIntegrations.map(int => (
                     <div key={int.id} className="bg-white p-2.5 rounded-xl border border-slate-150 flex items-center justify-between text-[10px]">
                       <div className="space-y-0.5">
                         <span className="font-bold text-slate-700">{int.provider} ({int.province})</span>
@@ -682,7 +692,7 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
                       Active EMR Integrations & Gateways
                     </h4>
                     <div className="space-y-2">
-                      {integrations.map(int => (
+                      {safeIntegrations.map(int => (
                         <div key={int.id} className="bg-white p-2.5 rounded-xl border border-slate-150 flex items-center justify-between text-[10px]">
                           <div className="space-y-0.5">
                             <span className="font-bold text-slate-700">{int.provider} ({int.province})</span>
@@ -816,7 +826,7 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
                     <div className="mt-4 border-t border-slate-200/60 pt-3">
                       <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold block mb-1">Live Delivery Monitor</span>
                       <div className="space-y-1.5 overflow-y-auto max-h-[80px] scrollbar-thin pr-1">
-                        {intakeLinks.filter(l => l.patientId === patient.id).map(l => (
+                        {safeIntakeLinks.filter(l => l.patientId === patient.id).map(l => (
                           <div key={l.id} className="flex items-center justify-between text-[10px] bg-white p-1.5 rounded-lg border border-slate-100">
                             <span className="font-semibold text-slate-600 flex items-center gap-1">
                               {l.sentVia === "SMS" ? <Smartphone className="w-2.5 h-2.5 text-blue-500" /> : l.sentVia === "Email" ? <Mail className="w-2.5 h-2.5 text-purple-500" /> : <QrCode className="w-2.5 h-2.5 text-indigo-500" />}

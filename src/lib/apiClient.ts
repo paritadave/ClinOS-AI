@@ -279,6 +279,69 @@ async function handleFallbackRoute(url: string, init?: RequestInit): Promise<Res
     ]), { status: 200, headers: { "Content-Type": "application/json" } });
   }
 
+  // 13. EMR Sync Logs
+  if (url.includes("/api/emr-sync-logs")) {
+    return new Response(JSON.stringify([
+      {
+        id: "log-101",
+        patientId: "pat-01",
+        patientName: "Sarah Jenkins",
+        timestamp: new Date().toISOString(),
+        emrProvider: "OSCAR EMR (Ontario Gateway)",
+        status: "Success",
+        resourcesSynced: ["Patient", "Condition", "MedicationStatement", "Observation"],
+        fhirPayloadPreview: "{\n  \"resourceType\": \"Bundle\",\n  \"type\": \"transaction\"\n}"
+      }
+    ]), { status: 200, headers: { "Content-Type": "application/json" } });
+  }
+
+  // 14. Patient Intake Links
+  if (url.includes("/api/patient-intake-links")) {
+    return new Response(JSON.stringify([
+      {
+        id: "link-101",
+        patientId: "pat-01",
+        patientName: "Sarah Jenkins",
+        dispatchedAt: new Date().toISOString(),
+        channel: "SMS",
+        contactValue: "+1 (416) 555-0192",
+        status: "Completed",
+        accessCode: "948210"
+      }
+    ]), { status: 200, headers: { "Content-Type": "application/json" } });
+  }
+
+  // 15. Appointments
+  if (url.includes("/api/appointments")) {
+    return new Response(JSON.stringify([
+      {
+        id: "appt-101",
+        patientId: "pat-01",
+        patientName: "Sarah Jenkins",
+        date: new Date(Date.now() + 86400000 * 3).toISOString().split("T")[0],
+        time: "10:30 AM",
+        clinicianName: "Dr. Alistair Vance",
+        reason: "Routine Follow-up • Gestational Care Assessment",
+        status: "Scheduled"
+      }
+    ]), { status: 200, headers: { "Content-Type": "application/json" } });
+  }
+
+  // 16. Audit Logs
+  if (url.includes("/api/audit-logs")) {
+    return new Response(JSON.stringify([
+      {
+        id: "audit-101",
+        timestamp: new Date().toISOString(),
+        user: "Dr. Alistair Vance, CCFP",
+        role: "Attending Physician",
+        action: "CLINICAL_WORKSPACE_INIT",
+        details: "Loaded clinical workspace and verified PIPEDA compliance parameters.",
+        ipAddress: "127.0.0.1"
+      }
+    ]), { status: 200, headers: { "Content-Type": "application/json" } });
+  }
+
   // Default fallback JSON for any unhandled /api route
   return new Response(JSON.stringify({ status: "ok", message: "CurisVance Clinical API Fallback", data: bodyData }), {
     status: 200,

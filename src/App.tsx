@@ -332,7 +332,12 @@ export default function App() {
     }
   };
 
-  const activePatient = patients.find(p => p.id === selectedPatientId);
+  const safePatients = Array.isArray(patients) ? patients : [];
+  const safeQuickNotes = Array.isArray(quickNotes) ? quickNotes : [];
+  const safeNotifications = Array.isArray(notifications) ? notifications : [];
+  const safeAuditLogs = Array.isArray(auditLogs) ? auditLogs : [];
+
+  const activePatient = safePatients.find(p => p.id === selectedPatientId) || safePatients[0] || FALLBACK_PATIENTS[0];
 
   const getBentoCards = () => {
     const cards = [
@@ -764,7 +769,7 @@ export default function App() {
                   </h3>
                 </div>
                 <span className="bg-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] px-2 py-0.2 rounded-full font-bold font-mono">
-                  {quickNotes.filter(n => n.patientId === selectedPatientId).length}
+                  {safeQuickNotes.filter(n => n.patientId === selectedPatientId).length}
                 </span>
               </div>
 
@@ -794,14 +799,14 @@ export default function App() {
 
               {/* Notes List */}
               <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 custom-scrollbar max-h-60">
-                {quickNotes.filter(n => n.patientId === selectedPatientId).length === 0 ? (
+                {safeQuickNotes.filter(n => n.patientId === selectedPatientId).length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full py-6 text-center">
                     <p className="text-[10px] text-slate-400 italic leading-relaxed">
                       No active scratchpad notes.<br />Add observations for {activePatient.name}.
                     </p>
                   </div>
                 ) : (
-                  quickNotes
+                  safeQuickNotes
                     .filter(n => n.patientId === selectedPatientId)
                     .map((note) => (
                       <motion.div 
@@ -833,7 +838,7 @@ export default function App() {
         <div className="lg:col-span-9 flex flex-col space-y-6 min-h-0">
           {/* Top Panel: Critical Patient Safety Alerts Banner */}
           <AnimatePresence mode="popLayout">
-            {notifications.map((not) => (
+            {safeNotifications.map((not) => (
               <motion.div
                 key={not.id}
                 initial={{ opacity: 0, height: 0, y: -10 }}
@@ -852,7 +857,7 @@ export default function App() {
                   </p>
                 </div>
                 <button 
-                  onClick={() => setNotifications(notifications.filter(n => n.id !== not.id))}
+                  onClick={() => setNotifications(prev => (Array.isArray(prev) ? prev : []).filter(n => n.id !== not.id))}
                   className="text-xs font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
                 >
                   Dismiss
@@ -994,7 +999,7 @@ export default function App() {
           }
 
           if (!card) return null;
-          const patientNotes = quickNotes.filter(n => n.patientId === selectedPatientId);
+          const patientNotes = safeQuickNotes.filter(n => n.patientId === selectedPatientId);
 
           return (
             <motion.div 

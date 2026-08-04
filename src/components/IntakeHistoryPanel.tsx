@@ -102,10 +102,11 @@ export default function IntakeHistoryPanel({ patient, onRefresh, onLogAudit }: I
   };
 
   const toggleSymptom = (sym: string) => {
-    if (symptomsList.includes(sym)) {
-      setSymptomsList(symptomsList.filter(s => s !== sym));
+    const list = Array.isArray(symptomsList) ? symptomsList : [];
+    if (list.includes(sym)) {
+      setSymptomsList(list.filter(s => s !== sym));
     } else {
-      setSymptomsList([...symptomsList, sym]);
+      setSymptomsList([...list, sym]);
     }
   };
 

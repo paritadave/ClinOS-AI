@@ -110,9 +110,11 @@ export default function CompliancePanel({
   };
 
   // 1. Dynamic single-clinic patient demographics calculations
-  const totalPatients = patients.length;
+  const safePatients = Array.isArray(patients) ? patients : [];
+  const safeAuditLogs = Array.isArray(auditLogs) ? auditLogs : [];
+  const totalPatients = safePatients.length;
   
-  const ages = patients.map(p => {
+  const ages = safePatients.map(p => {
     const birthYear = new Date(p.birthDate).getFullYear();
     const currentYear = new Date().getFullYear();
     return currentYear - birthYear;
@@ -355,7 +357,7 @@ export default function CompliancePanel({
                   </div>
                   <div>
                     <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Active Safety Audits</span>
-                    <h4 className="text-xl font-black text-slate-800 mt-0.5">{auditLogs.filter(l => l.action.includes("SAFETY") || l.action.includes("ALERT")).length}</h4>
+                    <h4 className="text-xl font-black text-slate-800 mt-0.5">{safeAuditLogs.filter(l => l.action.includes("SAFETY") || l.action.includes("ALERT")).length}</h4>
                     <p className="text-[10px] text-slate-500 font-semibold mt-0.5">Real-time alerts reviewed</p>
                   </div>
                 </div>
@@ -705,10 +707,10 @@ export default function CompliancePanel({
                 </div>
 
                 <div className="flex-1 overflow-y-auto pr-1 space-y-2.5 custom-scrollbar">
-                  {auditLogs.length === 0 ? (
+                  {safeAuditLogs.length === 0 ? (
                     <p className="text-xs text-slate-400 text-center py-12 font-medium">No audit actions recorded in this session.</p>
                   ) : (
-                    auditLogs.map((log) => (
+                    safeAuditLogs.map((log) => (
                       <div 
                         key={log.id} 
                         className="bg-slate-50 hover:bg-slate-100/80 border border-slate-200 rounded-xl p-3.5 text-xs flex flex-col gap-1.5 transition-all shadow-2xs"

@@ -210,8 +210,14 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
     const fetchAppointments = async () => {
       try {
         const res = await apiFetch("/api/appointments");
-        const data = await res.json();
-        setAppointments(data.filter((a: Appointment) => a.patientId === patient.id));
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            setAppointments(data.filter((a: Appointment) => a.patientId === patient.id));
+          } else {
+            setAppointments([]);
+          }
+        }
       } catch (err) {
         console.error("Error fetching clinical appointments in PatientTakeHomePanel:", err);
       }
@@ -521,9 +527,9 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
             Your Next Scheduled Consultations
           </h4>
 
-          {appointments.length > 0 ? (
+          {(Array.isArray(appointments) ? appointments : []).length > 0 ? (
             <div className="space-y-2.5">
-              {appointments.map((appt) => (
+              {(Array.isArray(appointments) ? appointments : []).map((appt) => (
                 <div key={appt.id} className="bg-emerald-50/30 border border-emerald-100 rounded-xl p-3 text-xs flex justify-between items-center">
                   <div className="space-y-1">
                     <p className="font-extrabold text-slate-800 text-sm">
