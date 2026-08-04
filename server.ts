@@ -30,24 +30,39 @@ app.use((req, res, next) => {
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
+
+  // Normalize Vercel serverless request path if needed
+  if (process.env.VERCEL && !req.url.startsWith("/api")) {
+    req.url = "/api" + (req.url.startsWith("/") ? req.url : "/" + req.url);
+  }
   next();
 });
 
 const PORT = 3000;
-
-// Initialize Gemini Client
 const apiKey = process.env.GEMINI_API_KEY;
-const ai = new GoogleGenAI({
-  apiKey: apiKey,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
+
+// Initialize Gemini Client Lazily
+let geminiClientInstance: GoogleGenAI | null = null;
+const getGeminiClient = () => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return null;
+  if (!geminiClientInstance) {
+    try {
+      geminiClientInstance = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build',
+          }
+        }
+      });
+    } catch (e) {
+      console.error("[Gemini Client Error] Failed to initialize GoogleGenAI:", e);
+      return null;
     }
   }
-});
-
-// Resilient wrapper for GoogleGenAI to handle high-demand 503 and 429 rate limit errors
-const originalGenerateContent = ai.models.generateContent.bind(ai.models);
+  return geminiClientInstance;
+};
 
 function generateMockFromSchema(schema: any, keyName: string): any {
   if (!schema) return null;
@@ -180,35 +195,36 @@ function generateMockFromSchema(schema: any, keyName: string): any {
   return null;
 }
 
-ai.models.generateContent = async function (args: any) {
-  let attempt = 0;
-  const maxAttempts = 3;
-  let lastError: any = null;
+const ai = {
+  models: {
+    generateContent: async function (args: any) {
+      let attempt = 0;
+      const maxAttempts = 3;
+      const client = getGeminiClient();
 
-  if (process.env.GEMINI_API_KEY) {
-    while (attempt < maxAttempts) {
-      try {
-        const res = await originalGenerateContent(args);
-        return res;
-      } catch (err: any) {
-        attempt++;
-        lastError = err;
-        console.warn(`[Gemini API Warning] Attempt ${attempt} failed: ${err.message || err}`);
-        
-        const isRetryable = err.status === 503 || err.status === 429 || 
-                            err.message?.includes("503") || err.message?.includes("429") ||
-                            err.message?.includes("demand") || err.message?.includes("rate limit") ||
-                            err.message?.includes("UNAVAILABLE");
+      if (client) {
+        while (attempt < maxAttempts) {
+          try {
+            const res = await client.models.generateContent(args);
+            return res;
+          } catch (err: any) {
+            attempt++;
+            console.warn(`[Gemini API Warning] Attempt ${attempt} failed: ${err.message || err}`);
+            
+            const isRetryable = err.status === 503 || err.status === 429 || 
+                                err.message?.includes("503") || err.message?.includes("429") ||
+                                err.message?.includes("demand") || err.message?.includes("rate limit") ||
+                                err.message?.includes("UNAVAILABLE");
 
-        if (attempt >= maxAttempts || !isRetryable) {
-          break;
+            if (attempt >= maxAttempts || !isRetryable) {
+              break;
+            }
+            await new Promise((resolve) => setTimeout(resolve, 1200));
+          }
         }
-        await new Promise((resolve) => setTimeout(resolve, 1200));
+      } else {
+        console.warn("[Gemini API Warning] GEMINI_API_KEY is not defined. Using resilient clinical simulator engine fallback.");
       }
-    }
-  } else {
-    console.warn("[Gemini API Warning] GEMINI_API_KEY is not defined. Using resilient clinical simulator engine fallback.");
-  }
 
   console.warn("[Gemini API Fallback] Triggering local medical knowledge engine to generate a high-fidelity synthetic clinical response.");
 
@@ -271,6 +287,8 @@ Dr. Alistair Vance, CCFP`;
       totalTokenCount: 200
     }
   };
+    }
+  }
 };
 
 // Seed Patient Database (Canadian context)
