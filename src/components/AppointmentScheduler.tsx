@@ -22,6 +22,7 @@ import {
 import { Patient, Appointment } from "../types";
 import { getAccessToken, googleSignIn } from "../lib/googleAuth";
 import { sendGmailEmail } from "../lib/gmailService";
+import { apiFetch } from "../lib/apiClient";
 
 interface AppointmentSchedulerProps {
   patient: Patient;
@@ -124,7 +125,7 @@ export default function AppointmentScheduler({ patient, onRefresh, onLogAudit }:
   const fetchAppointments = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/appointments");
+      const res = await apiFetch("/api/appointments");
       const data = await res.json();
       setAppointments(data);
     } catch (err) {
@@ -154,7 +155,7 @@ export default function AppointmentScheduler({ patient, onRefresh, onLogAudit }:
     setMessage(null);
 
     try {
-      const res = await fetch("/api/appointments", {
+      const res = await apiFetch("/api/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -499,7 +500,7 @@ export default function AppointmentScheduler({ patient, onRefresh, onLogAudit }:
                     <div className="space-y-1 max-w-sm mx-auto">
                       <h4 className="text-xs font-bold text-slate-800">OAuth Connection Required</h4>
                       <p className="text-xs text-slate-400 leading-normal font-semibold">
-                        ClinOS utilizes your authorized clinician Google Workspace Gmail profile to send appointment confirmations. Please sign in to connect.
+                        CurisVance utilizes your authorized clinician Google Workspace Gmail profile to send appointment confirmations. Please sign in to connect.
                       </p>
                     </div>
                     <button
@@ -611,7 +612,7 @@ const generateAppointmentEmailHtml = (patientName: string, appt: Appointment) =>
   return `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
       <div style="background-color: #1e3a8a; padding: 24px; border-radius: 8px; text-align: center; color: #ffffff;">
-        <h2 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.5px;">ClinOS Family Medicine Clinic</h2>
+        <h2 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.5px;">CurisVance Family Medicine Clinic</h2>
         <p style="margin: 4px 0 0 0; font-size: 12px; color: #93c5fd; font-weight: 500;">700 University Ave, Toronto, ON M5G 1Z5 • (416) 555-0199</p>
       </div>
 
@@ -660,7 +661,7 @@ const generateAppointmentEmailHtml = (patientName: string, appt: Appointment) =>
           </div>
         ` : `
           <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #3b82f6; padding: 12px; border-radius: 6px; font-size: 12px; color: #1e3a8a;">
-            <strong>Location:</strong> Please report to the Front Desk at the ClinOS Medical Office Center:
+            <strong>Location:</strong> Please report to the Front Desk at the CurisVance Medical Office Center:
             <br/><strong>700 University Ave, 4th Floor Reception, Toronto, ON M5G 1Z5</strong>
             <br/><br/>Please bring your provincial Health Card (OHIP/BC Services Card) and check in at least 15 minutes prior to your slot.
           </div>

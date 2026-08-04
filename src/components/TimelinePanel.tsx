@@ -15,6 +15,7 @@ import {
   ClipboardList
 } from "lucide-react";
 import { Patient, ImagingResult } from "../types";
+import { apiFetch } from "../lib/apiClient";
 
 interface TimelinePanelProps {
   patient: Patient;
@@ -116,7 +117,7 @@ export default function TimelinePanel({ patient, onRefresh, onLogAudit }: Timeli
     setSummaryOutput(null);
 
     try {
-      const res = await fetch("/api/imaging/summarize", {
+      const res = await apiFetch("/api/imaging/summarize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

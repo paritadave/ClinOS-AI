@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import { Patient, AuditLog, UserRole } from "./types";
 import { FALLBACK_PATIENTS, FALLBACK_AUDIT_LOGS, FALLBACK_SYSTEM_HEALTH } from "./lib/fallbackData";
+import { apiFetch } from "./lib/apiClient";
 import TimelinePanel from "./components/TimelinePanel";
 import SafetyCheckPanel from "./components/SafetyCheckPanel";
 import ScribePanel from "./components/ScribePanel";
@@ -137,7 +138,7 @@ export default function App() {
     };
 
     try {
-      const res = await fetch("/api/patients", {
+      const res = await apiFetch("/api/patients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newPatientData)
@@ -197,7 +198,7 @@ export default function App() {
   const fetchData = async () => {
     try {
       // Fetch Patients
-      const patientRes = await fetch("/api/patients");
+      const patientRes = await apiFetch("/api/patients");
       let basePatients = FALLBACK_PATIENTS;
       if (patientRes.ok) {
         const patientData = await patientRes.json();
@@ -217,7 +218,7 @@ export default function App() {
       setPatients(merged);
 
       // Fetch Audit Logs
-      const auditRes = await fetch("/api/audit-logs");
+      const auditRes = await apiFetch("/api/audit-logs");
       if (auditRes.ok) {
         const auditData = await auditRes.json();
         if (Array.isArray(auditData) && auditData.length > 0) {
@@ -226,7 +227,7 @@ export default function App() {
       }
 
       // Fetch System Health
-      const healthRes = await fetch("/api/system-health");
+      const healthRes = await apiFetch("/api/system-health");
       if (healthRes.ok) {
         const healthData = await healthRes.json();
         if (healthData && healthData.status) {
@@ -264,7 +265,7 @@ export default function App() {
   const handleLogAudit = async (action: string, details: string) => {
     try {
       const activePatientObj = patients.find(p => p.id === selectedPatientId);
-      const res = await fetch("/api/audit-logs", {
+      const res = await apiFetch("/api/audit-logs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -545,7 +546,7 @@ export default function App() {
           </div>
           <div className="flex flex-col">
             <h1 className="text-lg font-bold tracking-tight text-slate-800">
-              ClinOS <span className="text-blue-600">AI</span>
+              CurisVance <span className="text-blue-600">EMR</span>
             </h1>
             <span className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold leading-tight">
               Clinical Copilot • CAN-East Region
@@ -941,7 +942,7 @@ export default function App() {
         </div>
       </footer>
 
-      {/* ClinOS Intelligent Floating Quick Actions Hub */}
+      {/* CurisVance Intelligent Floating Quick Actions Hub */}
       <QuickActionMenu 
         patients={patients}
         selectedPatientId={selectedPatientId}

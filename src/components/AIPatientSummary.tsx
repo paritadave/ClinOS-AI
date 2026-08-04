@@ -256,7 +256,7 @@ export default function AIPatientSummary({ patient }: AIPatientSummaryProps) {
           <div className="flex flex-wrap items-center gap-2">
             <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-400/20 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1" id="badge-ai-briefing">
               <Sparkles className="w-3 h-3 text-indigo-400" />
-              ClinOS AI Clinical Briefing
+              CurisVance AI Clinical Briefing
             </span>
             <span className="text-[10px] text-slate-400 font-mono" id="summary-update-time">Last updated: Today</span>
           </div>

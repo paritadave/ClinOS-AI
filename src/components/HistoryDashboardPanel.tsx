@@ -30,6 +30,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { Patient, EMRIntegration, EMRSyncLog, PatientIntakeLink } from "../types";
+import { apiFetch } from "../lib/apiClient";
 import LongitudinalTrendGraph from "./LongitudinalTrendGraph";
 import PreventativeCareGaps from "./PreventativeCareGaps";
 
@@ -73,15 +74,15 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
   // Load backend data on load and when patient changes
   const fetchAllData = async () => {
     try {
-      const intRes = await fetch("/api/emr-integrations");
+      const intRes = await apiFetch("/api/emr-integrations");
       const intData = await intRes.json();
       setIntegrations(intData);
 
-      const logsRes = await fetch("/api/emr-sync-logs");
+      const logsRes = await apiFetch("/api/emr-sync-logs");
       const logsData = await logsRes.json();
       setSyncLogs(logsData);
 
-      const linksRes = await fetch("/api/patient-intake-links");
+      const linksRes = await apiFetch("/api/patient-intake-links");
       const linksData = await linksRes.json();
       setIntakeLinks(linksData);
     } catch (err) {
@@ -110,7 +111,7 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
     setLatestDispatchedLink(null);
 
     try {
-      const res = await fetch("/api/patient-intake-links/send", {
+      const res = await apiFetch("/api/patient-intake-links/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -145,7 +146,7 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
     try {
       await onLogAudit("EMR_SYNC_TRIGGERED", `Initiated secure HL7 FHIR synchronization for ${patient.name} to regional EMR database.`);
       
-      const res = await fetch(`/api/emr-integrations/sync/${patient.id}`, { method: "POST" });
+      const res = await apiFetch(`/api/emr-integrations/sync/${patient.id}`, { method: "POST" });
       const data = await res.json();
       
       if (res.ok && data.success) {
@@ -170,7 +171,7 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
     if (!editingEMR) return;
 
     try {
-      const res = await fetch("/api/emr-integrations/configure", {
+      const res = await apiFetch("/api/emr-integrations/configure", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -202,7 +203,7 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
         <div>
           <div className="flex items-center gap-2">
             <span className="bg-blue-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider shadow-xs">
-              ClinOS AI v4.0
+              CurisVance EMR v4.0
             </span>
             <h2 className="text-base font-bold text-slate-800 flex items-center gap-1.5">
               Longitudinal History & EMR Orchestrator
@@ -513,7 +514,7 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
               <div className="md:col-span-6 space-y-3 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-800 pt-4 md:pt-0 md:pl-6">
                 <div>
                   <h4 className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4" /> ClinOS AI Clinical Compliance Status
+                    <ShieldCheck className="w-4 h-4" /> CurisVance AI Clinical Compliance Status
                   </h4>
                   <p className="text-[10px] text-slate-400">Verifying alignment with provincial health acts</p>
                 </div>
@@ -855,7 +856,7 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
                   <div className="bg-slate-950 text-slate-300 p-5 rounded-2xl font-mono text-xs flex-1 space-y-3">
                     <h4 className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
                       <ShieldCheck className="w-4 h-4 text-emerald-500 animate-pulse" />
-                      ClinOS AI Clinical Compliance Status
+                      CurisVance AI Clinical Compliance Status
                     </h4>
                     
                     <div className="space-y-2 text-[10px] bg-slate-900 p-3 rounded-xl border border-slate-800/80">

@@ -12,6 +12,7 @@ import {
   FileCheck
 } from "lucide-react";
 import { Patient, IntakeSummary } from "../types";
+import { apiFetch } from "../lib/apiClient";
 
 interface IntakeHistoryPanelProps {
   patient: Patient;
@@ -54,7 +55,7 @@ export default function IntakeHistoryPanel({ patient, onRefresh, onLogAudit }: I
     setIntakeSummary("");
 
     try {
-      const res = await fetch("/api/intake/analyze", {
+      const res = await apiFetch("/api/intake/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -83,7 +84,7 @@ export default function IntakeHistoryPanel({ patient, onRefresh, onLogAudit }: I
     setCompareResult(null);
 
     try {
-      const res = await fetch("/api/history/compare", {
+      const res = await apiFetch("/api/history/compare", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currentNote, previousNote })

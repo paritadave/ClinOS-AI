@@ -232,7 +232,7 @@ export default function CompliancePanel({
         <div>
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-emerald-500" />
-            ClinOS Practice Administrator Operations Room
+            CurisVance Practice Administrator Operations Room
           </h2>
           <p className="text-xs text-slate-400 font-medium">
             Authorized Single-Clinic access • PIPEDA / PHIPA Patient Demographics, Safety Audits & Real-Time Performance Uptime

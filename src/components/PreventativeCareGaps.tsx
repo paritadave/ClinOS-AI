@@ -815,7 +815,7 @@ export default function PreventativeCareGaps({
       {/* Footer warning bar */}
       <div className="mt-4 border-t border-slate-100 pt-3 flex items-center justify-between text-[9px] font-mono font-bold text-slate-400 uppercase">
         <span>Preventative Compliance Protocol R2</span>
-        <span>Secure ClinOS Session</span>
+        <span>Secure CurisVance Session</span>
       </div>
 
     </div>

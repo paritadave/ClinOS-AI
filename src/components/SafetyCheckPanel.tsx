@@ -12,6 +12,7 @@ import {
   RefreshCw 
 } from "lucide-react";
 import { Patient, SafetyAlert, Medication } from "../types";
+import { apiFetch } from "../lib/apiClient";
 
 interface SafetyCheckPanelProps {
   patient: Patient;
@@ -36,7 +37,7 @@ export default function SafetyCheckPanel({ patient, onRefresh, onLogAudit }: Saf
     setSafetyAlerts([]);
     
     try {
-      const res = await fetch(`/api/patients/${patient.id}/prescribe-safety-check`, {
+      const res = await apiFetch(`/api/patients/${patient.id}/prescribe-safety-check`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

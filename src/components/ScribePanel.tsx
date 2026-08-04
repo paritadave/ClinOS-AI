@@ -26,6 +26,7 @@ import {
 import { Patient, SOAPNote } from "../types";
 import { initAuth, googleSignIn, logout as googleLogout } from "../lib/googleAuth";
 import { sendGmailEmail } from "../lib/gmailService";
+import { apiFetch } from "../lib/apiClient";
 
 interface ScribePanelProps {
   patient: Patient;
@@ -107,7 +108,7 @@ export default function ScribePanel({ patient, onRefresh, onLogAudit }: ScribePa
 <p><strong>Treatment Plan:</strong></p>
 <p style="font-family: sans-serif; font-size: 13px; line-height: 1.5; color: #334155; white-space: pre-line;">${generatedScribe.plan}</p>
 <p>Please contact our clinic if you experience any worsening of your symptoms.</p>
-<p>Sincerely,<br/>Dr. Dave, MD, CCFP<br/>ClinOS Family Medicine Suite</p>`);
+<p>Sincerely,<br/>Dr. Dave, MD, CCFP<br/>CurisVance Family Medicine Suite</p>`);
     } else if (shareType === "referral") {
       setGmailSubject(`eReferral Consult: ${referralSpecialty} - Patient: ${patient.name}`);
       setGmailBody(`<h3>Specialist Consultation Request</h3>
@@ -142,7 +143,7 @@ ${generatedScribe.referralLetter || `CLINICAL ASSESSMENT NOTES:\n\nSUBJECTIVE:\n
   </tr>
 </table>
 <p style="color: #64748b; font-size: 11px;">If your health deteriorates, please present to the nearest Canadian Emergency Department or call 911 immediately.</p>
-<p>Sincerely,<br/>ClinOS Automated Care Dispatch</p>`);
+<p>Sincerely,<br/>CurisVance Automated Care Dispatch</p>`);
     }
   }, [shareType, generatedScribe, referralSpecialty, referralFacility, patient]);
   const [isFetchingBilling, setIsFetchingBilling] = useState<boolean>(false);
@@ -276,7 +277,7 @@ ${generatedScribe.referralLetter || `CLINICAL ASSESSMENT NOTES:\n\nSUBJECTIVE:\n
     setIsSyncingEMR(true);
     setEmrSyncSuccess(false);
     try {
-      const res = await fetch(`/api/patients/${patient.id}/sync-soap-note`, {
+      const res = await apiFetch(`/api/patients/${patient.id}/sync-soap-note`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -416,7 +417,7 @@ ${generatedScribe.referralLetter || `CLINICAL ASSESSMENT NOTES:\n\nSUBJECTIVE:\n
               setIsTranscribingAudio(true);
               setPreventiveAlerts([]); // clear out old alerts
               try {
-                const res = await fetch("/api/scribe/process-audio", {
+                const res = await apiFetch("/api/scribe/process-audio", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
@@ -496,7 +497,7 @@ ${generatedScribe.referralLetter || `CLINICAL ASSESSMENT NOTES:\n\nSUBJECTIVE:\n
 
     try {
       // 1. Fetch Suggested Provincial Billing Codes (OHIP/MSP)
-      const billRes = await fetch("/api/scribe/suggest-billing", {
+      const billRes = await apiFetch("/api/scribe/suggest-billing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ notesText, patientId: patient.id })
@@ -507,7 +508,7 @@ ${generatedScribe.referralLetter || `CLINICAL ASSESSMENT NOTES:\n\nSUBJECTIVE:\n
       }
 
       // 2. Fetch Medical Safety & Guideline Audits
-      const auditRes = await fetch(`/api/scribe/guidelines-audit/${patient.id}`);
+      const auditRes = await apiFetch(`/api/scribe/guidelines-audit/${patient.id}`);
       const auditData = await auditRes.json();
       if (auditData.audits) {
         setGuidelineAudits(auditData.audits);
@@ -600,7 +601,7 @@ ${generatedScribe.referralLetter || `CLINICAL ASSESSMENT NOTES:\n\nSUBJECTIVE:\n
         ? `${generatedScribe.subjective}\n${generatedScribe.objective}\n${generatedScribe.assessment}\n${generatedScribe.plan}`
         : transcriptText;
 
-      const res = await fetch("/api/scribe/generate-referral", {
+      const res = await apiFetch("/api/scribe/generate-referral", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -628,7 +629,7 @@ ${generatedScribe.referralLetter || `CLINICAL ASSESSMENT NOTES:\n\nSUBJECTIVE:\n
     setGeneratedScribe(null);
 
     try {
-      const res = await fetch("/api/scribe/generate-soap", {
+      const res = await apiFetch("/api/scribe/generate-soap", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -660,7 +661,7 @@ ${generatedScribe.referralLetter || `CLINICAL ASSESSMENT NOTES:\n\nSUBJECTIVE:\n
     setIsTranslating(true);
 
     try {
-      const res = await fetch("/api/translate", {
+      const res = await apiFetch("/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1430,7 +1431,7 @@ ${generatedScribe.referralLetter || `CLINICAL ASSESSMENT NOTES:\n\nSUBJECTIVE:\n
                             Jurisdiction: <strong>{patient.province}</strong>
                           </span>
                         </div>
-                        <span className="text-xs text-slate-400 font-mono">Powered by ClinOS Fee Engine</span>
+                        <span className="text-xs text-slate-400 font-mono">Powered by CurisVance Fee Engine</span>
                       </div>
 
                       {isFetchingBilling ? (
@@ -1654,7 +1655,7 @@ ${generatedScribe.referralLetter || `CLINICAL ASSESSMENT NOTES:\n\nSUBJECTIVE:\n
                           <div>
                             <h4 className="text-sm font-bold text-slate-800">Google OAuth Authorization Required</h4>
                             <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
-                              ClinOS uses secure in-memory Google OAuth to connect directly to your clinic's Gmail account to send patient instruction summaries and specialist schedules.
+                              CurisVance uses secure in-memory Google OAuth to connect directly to your clinic's Gmail account to send patient instruction summaries and specialist schedules.
                             </p>
                           </div>
                           <button

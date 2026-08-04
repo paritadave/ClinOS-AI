@@ -131,7 +131,7 @@ export default function QuickActionMenu({
                     <Zap className="w-4 h-4 fill-blue-400" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider">ClinOS Quick Actions</h3>
+                    <h3 className="text-xs font-bold uppercase tracking-wider">CurisVance Quick Actions</h3>
                     <p className="text-[10px] text-slate-400">Rapid single-encounter workflow macros</p>
                   </div>
                 </div>

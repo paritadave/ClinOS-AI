@@ -23,6 +23,7 @@ import {
 import { Patient, Appointment } from "../types";
 import { getAccessToken, googleSignIn } from "../lib/googleAuth";
 import { sendGmailEmail } from "../lib/gmailService";
+import { apiFetch } from "../lib/apiClient";
 
 interface PatientTakeHomePanelProps {
   patient: Patient;
@@ -49,7 +50,7 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
   useEffect(() => {
     if (patient) {
       setRecipientEmail(patient.name.toLowerCase().replace(/\s+/g, "") + "@example.com");
-      setEmailSubject(`ClinOS Patient Health Summary Handout - ${patient.name}`);
+      setEmailSubject(`CurisVance Patient Health Summary Handout - ${patient.name}`);
     }
   }, [patient]);
 
@@ -106,7 +107,7 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
     return `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
         <div style="background-color: #e11d48; padding: 24px; border-radius: 8px; text-align: center; color: #ffffff;">
-          <h2 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.5px;">ClinOS Family Medicine Clinic</h2>
+          <h2 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.5px;">CurisVance Family Medicine Clinic</h2>
           <p style="margin: 4px 0 0 0; font-size: 12px; color: #fecdd3; font-weight: 500;">700 University Ave, Toronto, ON M5G 1Z5 • (416) 555-0199</p>
         </div>
 
@@ -208,7 +209,7 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const res = await fetch("/api/appointments");
+        const res = await apiFetch("/api/appointments");
         const data = await res.json();
         setAppointments(data.filter((a: Appointment) => a.patientId === patient.id));
       } catch (err) {
@@ -381,7 +382,7 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
             <div className="space-y-1">
               <h3 className="text-sm font-black text-slate-800 tracking-tight flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4 text-blue-500" />
-                ClinOS Family Medicine Clinic
+                CurisVance Family Medicine Clinic
               </h3>
               <p className="text-[11px] text-slate-400 font-medium">700 University Ave, Toronto, ON M5G 1Z5 • (416) 555-0199</p>
             </div>
@@ -632,7 +633,7 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
                     <div className="space-y-1 max-w-sm mx-auto">
                       <h4 className="text-xs font-bold text-slate-800">OAuth Connection Required</h4>
                       <p className="text-xs text-slate-400 leading-normal font-semibold">
-                        ClinOS utilizes your authorized clinician Google Workspace Gmail profile to send summaries securely. Please sign in to connect.
+                        CurisVance utilizes your authorized clinician Google Workspace Gmail profile to send summaries securely. Please sign in to connect.
                       </p>
                     </div>
                     <button
