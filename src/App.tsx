@@ -44,6 +44,24 @@ import PatientTakeHomePanel from "./components/PatientTakeHomePanel";
 import QuickActionMenu from "./components/QuickActionMenu";
 import AIPatientSummary from "./components/AIPatientSummary";
 
+const safeGetLocalStorage = <T,>(key: string, defaultValue: T): T => {
+  try {
+    const saved = localStorage.getItem(key);
+    if (saved) return JSON.parse(saved);
+  } catch (e) {
+    console.warn(`[ClinOS] Unable to read ${key} from localStorage:`, e);
+  }
+  return defaultValue;
+};
+
+const safeSetLocalStorage = (key: string, value: any): void => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    console.warn(`[ClinOS] Unable to write ${key} to localStorage:`, e);
+  }
+};
+
 export default function App() {
   const [patients, setPatients] = useState<Patient[]>(FALLBACK_PATIENTS);
   const [selectedPatientId, setSelectedPatientId] = useState<string>("pat-01");
@@ -57,25 +75,19 @@ export default function App() {
   
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
   const [quickNotes, setQuickNotes] = useState<Array<{ id: string; patientId: string; content: string; timestamp: string }>>(() => {
-    try {
-      const saved = localStorage.getItem("clinos_quick_notes");
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.error(e);
-    }
-    return [
+    return safeGetLocalStorage("clinos_quick_notes", [
       { id: "note-1", patientId: "pat-01", content: "Note: Maternal BP is stable but warrants spot ACR evaluation due to mild gestational history.", timestamp: "2026-07-18 14:32" },
       { id: "note-2", patientId: "pat-01", content: "Scheduled pertussis (Tdap) booster for today's visit.", timestamp: "2026-07-18 14:35" },
       { id: "note-3", patientId: "pat-02", content: "eGFR at 28 requires consultation with nephrologist regarding metformin discontinuation strategy.", timestamp: "2026-07-18 11:20" },
       { id: "note-4", patientId: "pat-02", content: "Remind patient regarding annual dilated eye fundus screening.", timestamp: "2026-07-18 11:24" },
       { id: "note-5", patientId: "pat-03", content: "Postpartum mental health: Sertraline tolerated well. Improved GAD-7 / EPDS indicators.", timestamp: "2026-07-18 16:15" },
       { id: "note-6", patientId: "pat-03", content: "Co-design Written Asthma Action Plan today due to minor spring pollen exacerbation.", timestamp: "2026-07-18 16:18" }
-    ];
+    ]);
   });
 
   // Save quick notes to local storage whenever they change
   useEffect(() => {
-    localStorage.setItem("clinos_quick_notes", JSON.stringify(quickNotes));
+    safeSetLocalStorage("clinos_quick_notes", quickNotes);
   }, [quickNotes]);
 
   const handleAddQuickNote = (content: string) => {
@@ -155,9 +167,9 @@ export default function App() {
       }
 
       // Save to local storage for persistent Vercel/front-end static deployment
-      const existingLocal = JSON.parse(localStorage.getItem("clinos_local_patients") || "[]");
+      const existingLocal = safeGetLocalStorage<Patient[]>("clinos_local_patients", []);
       existingLocal.push(createdPatient);
-      localStorage.setItem("clinos_local_patients", JSON.stringify(existingLocal));
+      safeSetLocalStorage("clinos_local_patients", existingLocal);
 
       setPatients(prev => [...prev, createdPatient]);
       setSelectedPatientId(createdPatient.id);
@@ -178,9 +190,9 @@ export default function App() {
         id: "pat-" + Date.now(),
         ...newPatientData
       };
-      const existingLocal = JSON.parse(localStorage.getItem("clinos_local_patients") || "[]");
+      const existingLocal = safeGetLocalStorage<Patient[]>("clinos_local_patients", []);
       existingLocal.push(createdPatient);
-      localStorage.setItem("clinos_local_patients", JSON.stringify(existingLocal));
+      safeSetLocalStorage("clinos_local_patients", existingLocal);
 
       setPatients(prev => [...prev, createdPatient]);
       setSelectedPatientId(createdPatient.id);
@@ -208,7 +220,7 @@ export default function App() {
       }
 
       // Merge with local storage
-      const localPatients = JSON.parse(localStorage.getItem("clinos_local_patients") || "[]");
+      const localPatients = safeGetLocalStorage<Patient[]>("clinos_local_patients", []);
       const merged = [...basePatients];
       localPatients.forEach((lp: Patient) => {
         if (!merged.some(p => p.id === lp.id)) {
@@ -236,7 +248,7 @@ export default function App() {
       }
     } catch (err) {
       console.warn("Could not load live clinical workspace from server, using local secure PIPEDA fallback mode.", err);
-      const localPatients = JSON.parse(localStorage.getItem("clinos_local_patients") || "[]");
+      const localPatients = safeGetLocalStorage<Patient[]>("clinos_local_patients", []);
       const merged = [...FALLBACK_PATIENTS];
       localPatients.forEach((lp: Patient) => {
         if (!merged.some(p => p.id === lp.id)) {
