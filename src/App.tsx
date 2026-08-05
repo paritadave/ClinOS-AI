@@ -208,42 +208,16 @@ export default function App() {
 
   // Fetch initial data
   const fetchData = async () => {
-  try {
-    const [patientRes, auditRes, healthRes] = await Promise.all([
-      fetch("/api/patients"),
-      fetch("/api/audit-logs"),
-      fetch("/api/system-health"),
-    ]);
-
-    if (!patientRes.ok) {
-      throw new Error(`Patients API failed: ${patientRes.status}`);
-    }
-
-    if (!auditRes.ok) {
-      throw new Error(`Audit API failed: ${auditRes.status}`);
-    }
-
-    if (!healthRes.ok) {
-      throw new Error(`System health API failed: ${healthRes.status}`);
-    }
-
-    const patientData = await patientRes.json();
-    const auditData = await auditRes.json();
-    const healthData = await healthRes.json();
-
-    setPatients(Array.isArray(patientData) ? patientData : []);
-    setAuditLogs(Array.isArray(auditData) ? auditData : []);
-    setSystemHealth(healthData ?? null);
-  } catch (err) {
-    console.error("Error fetching clinical workspace data:", err);
-
-    setPatients([]);
-    setAuditLogs([]);
-    setSystemHealth(null);
-  } finally {
-    setIsLoading(false);
-  }
-};
+    try {
+      // Fetch Patients
+      const patientRes = await apiFetch("/api/patients");
+      let basePatients = FALLBACK_PATIENTS;
+      if (patientRes.ok) {
+        const patientData = await patientRes.json();
+        if (Array.isArray(patientData) && patientData.length > 0) {
+          basePatients = patientData;
+        }
+      }
 
       // Merge with local storage
       const localPatients = safeGetLocalStorage<Patient[]>("clinos_local_patients", []);
