@@ -462,51 +462,130 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
         </div>
 
         {/* Simplified Medication Plan */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200/60 shadow-xs space-y-3.5">
-          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-            <Pill className="w-3.5 h-3.5 text-indigo-500" />
-            Your Active Medication Plan
-          </h4>
+        <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs space-y-4" id="takehome-medications-section">
+          <div className="flex items-center justify-between flex-wrap gap-2 border-b border-slate-100 pb-2.5">
+            <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
+              <Pill className="w-4 h-4 text-indigo-600" />
+              Prescribed & Active Medication Schedule
+            </h4>
+            <span className="text-[10px] font-extrabold text-indigo-900 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-full font-mono">
+              {(Array.isArray(patient?.currentMedications) ? patient.currentMedications : []).length} Prescribed Active
+            </span>
+          </div>
 
           <div className="space-y-3">
-            {(Array.isArray(patient?.currentMedications) ? patient.currentMedications : []).map((med) => {
-              const details = laypersonMeds[med.name] || {
-                purpose: "Prescribed health maintenance",
-                instructions: "Take according to clinician's directed dosing schedule."
-              };
-              const isDiscontinued = med.status === "Discontinued";
-              
-              return (
-                <div 
-                  key={med.id} 
-                  className={`border rounded-xl p-3.5 text-xs transition-all ${
-                    isDiscontinued 
-                      ? "bg-rose-50/30 border-rose-100 text-rose-950 opacity-80" 
-                      : "bg-indigo-50/30 border-indigo-100 text-indigo-950"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${isDiscontinued ? "bg-rose-500 animate-pulse" : "bg-indigo-500"}`} />
-                      <h5 className="font-extrabold text-slate-800 text-[13px]">{med.name} ({med.dosage})</h5>
-                    </div>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
-                      isDiscontinued ? "bg-rose-100 text-rose-700" : "bg-indigo-100 text-indigo-700"
-                    }`}>
-                      {med.status}
-                    </span>
-                  </div>
+            {(Array.isArray(patient?.currentMedications) && patient.currentMedications.length > 0) ? (
+              patient.currentMedications.map((med) => {
+                const details = laypersonMeds[med.name] || {
+                  purpose: "Prescribed health maintenance",
+                  instructions: "Take according to clinician's directed dosing schedule."
+                };
+                const isDiscontinued = med.status === "Discontinued";
+                const isChanged = med.status === "Changed";
+                
+                return (
+                  <div 
+                    key={med.id} 
+                    className={`border-2 rounded-xl p-4 text-xs transition-all space-y-2.5 ${
+                      isDiscontinued 
+                        ? "bg-rose-50/60 border-rose-300 text-rose-950 shadow-xs" 
+                        : isChanged
+                        ? "bg-amber-50/60 border-amber-300 text-amber-950 shadow-xs"
+                        : "bg-indigo-50/40 border-indigo-200/90 text-slate-900 shadow-xs"
+                    }`}
+                  >
+                    {/* Header line with high-contrast name, dosage, and status notification */}
+                    <div className="flex items-start justify-between flex-wrap gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${isDiscontinued ? "bg-rose-600 animate-pulse" : "bg-emerald-600"}`} />
+                          <h5 className="font-extrabold text-slate-900 text-sm tracking-tight leading-snug">
+                            {med.name}
+                          </h5>
+                          <span className="bg-slate-900 text-white font-mono text-[11px] font-bold px-2 py-0.5 rounded-md">
+                            {med.dosage}
+                          </span>
+                        </div>
+                        <p className="text-[10.5px] text-slate-600 font-semibold mt-1">
+                          Prescribed by: {med.prescribedBy || "Primary Care Physician"} • Frequency: <span className="text-slate-900 font-bold">{med.frequency}</span>
+                        </p>
+                      </div>
 
-                  <div className="mt-2 space-y-1.5 text-[11px] text-slate-600 font-medium">
-                    <p><strong className="text-slate-700">Schedule:</strong> {med.frequency}</p>
-                    <p><strong className="text-slate-700">Purpose:</strong> {details.purpose}</p>
-                    <p className={`p-2 rounded-lg mt-1 ${isDiscontinued ? "bg-rose-100/50 text-rose-900 border border-rose-200" : "bg-white text-slate-600 border border-slate-150"}`}>
-                      <strong className="text-slate-800">Dosing Directions:</strong> {details.instructions}
-                    </p>
+                      {/* Status Notification Badge */}
+                      <div className="shrink-0">
+                        <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg border flex items-center gap-1 ${
+                          isDiscontinued 
+                            ? "bg-rose-100 text-rose-900 border-rose-300 shadow-2xs" 
+                            : isChanged
+                            ? "bg-amber-100 text-amber-900 border-amber-300 shadow-2xs"
+                            : "bg-emerald-100 text-emerald-950 border-emerald-300 shadow-2xs"
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${isDiscontinued ? "bg-rose-600" : "bg-emerald-600"}`} />
+                          {med.status === "Active" ? "Active Prescribed" : med.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Purpose & Dosing Details */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-800 pt-1 font-medium border-t border-slate-200/70">
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-slate-500 block">Indication / Purpose</span>
+                        <p className="font-semibold text-slate-900 mt-0.5">{details.purpose}</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-slate-500 block">Dosing Schedule</span>
+                        <p className="font-semibold text-slate-900 mt-0.5">{med.frequency}</p>
+                      </div>
+                    </div>
+
+                    {/* Explicit Status Notification Bar */}
+                    <div className={`p-2.5 rounded-lg border text-[11px] font-medium leading-relaxed ${
+                      isDiscontinued 
+                        ? "bg-rose-100/80 text-rose-900 border-rose-200 font-bold" 
+                        : "bg-white text-slate-800 border-slate-200 shadow-2xs"
+                    }`}>
+                      <div className="flex items-center gap-1.5 mb-1 font-extrabold uppercase text-[10px] tracking-wide">
+                        {isDiscontinued ? (
+                          <span className="text-rose-700 flex items-center gap-1">⚠️ Notification: Discontinued Medication</span>
+                        ) : (
+                          <span className="text-emerald-700 flex items-center gap-1">✓ Notification: Active Prescribed Regimen</span>
+                        )}
+                      </div>
+                      <p><strong className="text-slate-900">Clinician Directions:</strong> {details.instructions}</p>
+                    </div>
                   </div>
+                );
+              })
+            ) : (
+              <div className="text-slate-500 text-xs italic py-4 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                No active prescribed medications documented on file.
+              </div>
+            )}
+
+            {/* Discontinued / Historic Medication Audit */}
+            {patient.medicationHistory && patient.medicationHistory.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-slate-200 space-y-2">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-700 block flex items-center gap-1">
+                  ⚠️ Discontinued / Paused Medication Audit ({patient.medicationHistory.length})
+                </span>
+                <div className="space-y-2">
+                  {patient.medicationHistory.map((histMed) => (
+                    <div key={histMed.id} className="bg-rose-50/80 border border-rose-200 rounded-xl p-3 text-xs space-y-1 text-rose-950">
+                      <div className="flex items-center justify-between font-bold">
+                        <span className="text-slate-900">{histMed.name}</span>
+                        <span className="bg-rose-200 text-rose-900 text-[9px] px-2 py-0.5 rounded font-mono font-black uppercase">
+                          {histMed.status}
+                        </span>
+                      </div>
+                      <p className="text-slate-600 text-[10.5px]">Dates: {histMed.startDate} to {histMed.endDate || "Discontinued"}</p>
+                      <p className="text-rose-900 font-semibold text-[10.5px] bg-white p-1.5 rounded border border-rose-100">
+                        <strong>Reason for change:</strong> {histMed.changeReason}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-              );
-            })}
+              </div>
+            )}
           </div>
         </div>
 

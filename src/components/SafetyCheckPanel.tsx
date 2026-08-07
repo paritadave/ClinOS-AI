@@ -27,7 +27,11 @@ export default function SafetyCheckPanel({ patient, onRefresh, onLogAudit }: Saf
   const [isChecking, setIsChecking] = useState<boolean>(false);
   const [safetyAlerts, setSafetyAlerts] = useState<SafetyAlert[]>([]);
   const [checkSource, setCheckSource] = useState<string>("");
-  const [prescribedList, setPrescribedList] = useState<Medication[]>(patient.currentMedications);
+  const [prescribedList, setPrescribedList] = useState<Medication[]>(patient.currentMedications || []);
+
+  React.useEffect(() => {
+    setPrescribedList(patient.currentMedications || []);
+  }, [patient.id, patient.currentMedications]);
 
   const triggerSafetyCheck = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();

@@ -236,12 +236,21 @@ async function handleFallbackRoute(url: string, init?: RequestInit): Promise<Res
 
   // 8. History Compare
   if (url.includes("/history/compare")) {
+    const comparison = {
+      newSymptoms: ["Dry hacky cough for 7 days", "Mild shortness of breath on exertion"],
+      newMedications: ["Ventolin (Salbutamol) PRN Inhaler added"],
+      changedDosages: ["Discontinued Ibuprofen (Avoid in 3rd Trimester)"],
+      resolvedSymptoms: ["Previous lower back postural pain reported as fully resolved with daily physiotherapy stretching"],
+      criticalObservations: "Trajectory Differential Review: Symptoms shifted from musculoskeletal lower back strain to acute viral airway bronchial irritation. Obstetric status remains 26w gestation stable."
+    };
     return new Response(JSON.stringify({
-      newSymptoms: ["Mild non-productive cough"],
-      newMedications: ["Prenatal Multivitamin"],
-      changedDosages: ["None"],
-      resolvedSymptoms: ["Acute wheeze resolved"],
-      criticalObservations: "Stable blood pressure and clear chest auscultation compared to prior visit."
+      comparison,
+      newSymptoms: comparison.newSymptoms,
+      newMedications: comparison.newMedications,
+      changedDosages: comparison.changedDosages,
+      resolvedSymptoms: comparison.resolvedSymptoms,
+      criticalObservations: comparison.criticalObservations,
+      source: "CurisVance Clinical History Engine"
     }), { status: 200, headers: { "Content-Type": "application/json" } });
   }
 

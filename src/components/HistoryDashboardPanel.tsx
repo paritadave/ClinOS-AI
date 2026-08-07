@@ -435,29 +435,62 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
               <div>
                 <h3 className="text-xs font-bold text-slate-800 flex items-center gap-1.5 mb-1">
                   <Pill className="w-4 h-4 text-indigo-500" />
-                  Medications & Changes Audit
+                  Prescribed & Modified Medications
                 </h3>
-                <p className="text-[10px] text-slate-400 font-medium mb-3">Clinical record of discontinued or modified therapies</p>
+                <p className="text-[10px] text-slate-400 font-medium mb-3">Active prescribed regimens and historical modification audit</p>
 
-                <div className="space-y-2 overflow-y-auto max-h-[220px] scrollbar-thin pr-1">
-                  {patient.medicationHistory && patient.medicationHistory.length > 0 ? (
-                    patient.medicationHistory.map((med) => (
-                      <div key={med.id} className="bg-white p-2.5 rounded-xl border border-slate-200 space-y-1 text-[10px]">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-700">{med.name}</span>
-                          <span className="bg-rose-50 text-rose-700 border border-rose-100 text-[8px] font-bold px-1.5 py-0.2 rounded">
-                            {med.status}
-                          </span>
-                        </div>
-                        <p className="text-slate-400">{med.startDate} to {med.endDate || "Modified"}</p>
-                        <p className="text-slate-600 italic bg-slate-50 p-1.5 rounded text-[9px] font-sans">
-                          <strong>Reason:</strong> {med.changeReason}
-                        </p>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-slate-400 text-center py-6 text-[11px]">No recent medication discontinuations.</div>
-                  )}
+                <div className="space-y-3 overflow-y-auto max-h-[230px] scrollbar-thin pr-1">
+                  {/* Active Prescribed Meds */}
+                  <div>
+                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1.5">
+                      Active Prescribed Regimens ({patient.currentMedications?.length || 0})
+                    </span>
+                    <div className="space-y-1.5">
+                      {Array.isArray(patient?.currentMedications) && patient.currentMedications.length > 0 ? (
+                        patient.currentMedications.map((med) => (
+                          <div key={med.id} className="bg-emerald-50/40 border border-emerald-100 p-2 rounded-xl text-[10px]">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-slate-800">{med.name}</span>
+                              <span className="bg-emerald-100 text-emerald-800 text-[8px] font-bold px-1.5 py-0.2 rounded uppercase">
+                                {med.status || "Active"}
+                              </span>
+                            </div>
+                            <p className="text-slate-600 font-mono text-[9px] mt-0.5">{med.dosage} • {med.frequency}</p>
+                            <p className="text-slate-400 text-[8.5px]">Prescribed by: {med.prescribedBy} (Since {med.startDate})</p>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-slate-400 text-[9.5px] italic">No active prescribed medications.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Discontinued / Modified History */}
+                  <div className="border-t border-slate-200/60 pt-2">
+                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1.5">
+                      Discontinued / Modified Audit
+                    </span>
+                    <div className="space-y-1.5">
+                      {patient.medicationHistory && patient.medicationHistory.length > 0 ? (
+                        patient.medicationHistory.map((med) => (
+                          <div key={med.id} className="bg-white p-2 rounded-xl border border-slate-200 space-y-0.5 text-[10px]">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-slate-700">{med.name}</span>
+                              <span className="bg-rose-50 text-rose-700 border border-rose-100 text-[8px] font-bold px-1.5 py-0.2 rounded">
+                                {med.status}
+                              </span>
+                            </div>
+                            <p className="text-slate-400 text-[8.5px]">{med.startDate} to {med.endDate || "Modified"}</p>
+                            <p className="text-slate-600 italic bg-slate-50 p-1 rounded text-[8.5px]">
+                              <strong>Reason:</strong> {med.changeReason}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-slate-400 text-[9.5px] italic">No medication discontinuations.</div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -644,31 +677,31 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
                     </div>
                   </div>
 
-                  {/* Medications Changes Audit */}
+                  {/* Prescribed & Modified Medications */}
                   <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex-1">
                     <h4 className="text-xs font-bold text-slate-700 mb-3 flex items-center gap-1.5">
                       <Pill className="w-4 h-4 text-indigo-500" />
-                      Medications & Changes Audit
+                      Prescribed & Modified Medications
                     </h4>
-                    <div className="space-y-2 max-h-[180px] overflow-y-auto scrollbar-thin pr-1">
-                      {patient.medicationHistory && patient.medicationHistory.length > 0 ? (
-                        patient.medicationHistory.map((med) => (
-                          <div key={med.id} className="bg-white p-2.5 rounded-xl border border-slate-200 space-y-1 text-[10px]">
-                            <div className="flex items-center justify-between">
-                              <span className="font-bold text-slate-700">{med.name}</span>
-                              <span className="bg-rose-50 text-rose-700 border border-rose-100 text-[8px] font-bold px-1.5 py-0.2 rounded">
-                                {med.status}
-                              </span>
-                            </div>
-                            <p className="text-slate-400">{med.startDate} to {med.endDate || "Modified"}</p>
-                            <p className="text-slate-600 italic bg-slate-50 p-1.5 rounded text-[9px] font-sans">
-                              <strong>Reason:</strong> {med.changeReason}
-                            </p>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-slate-400 text-center py-6 text-[10px]">No recent medication discontinuations.</div>
-                      )}
+                    <div className="space-y-3 max-h-[200px] overflow-y-auto scrollbar-thin pr-1">
+                      <div>
+                        <span className="text-[9px] font-extrabold uppercase text-slate-400 block mb-1">Active Prescribed ({patient.currentMedications?.length || 0})</span>
+                        <div className="space-y-1">
+                          {Array.isArray(patient?.currentMedications) && patient.currentMedications.length > 0 ? (
+                            patient.currentMedications.map((med) => (
+                              <div key={med.id} className="bg-emerald-50/50 border border-emerald-100 p-2 rounded-xl text-[10px]">
+                                <div className="flex items-center justify-between font-bold text-slate-800">
+                                  <span>{med.name}</span>
+                                  <span className="bg-emerald-100 text-emerald-800 text-[8px] px-1 rounded">{med.status || "Active"}</span>
+                                </div>
+                                <p className="text-slate-500 text-[9px]">{med.dosage} • {med.frequency}</p>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-slate-400 text-[9px] italic">No active prescribed medications.</p>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

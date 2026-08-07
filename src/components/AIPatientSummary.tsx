@@ -1,6 +1,7 @@
 import React from "react";
-import { Sparkles, ShieldAlert, Heart, CalendarDays, CheckCircle2 } from "lucide-react";
+import { Sparkles, ShieldAlert, Heart, CalendarDays, CheckCircle2, Pill } from "lucide-react";
 import { Patient } from "../types";
+import PrescribedMedicationsList from "./PrescribedMedicationsList";
 
 interface AIPatientSummaryProps {
   patient: Patient;
@@ -310,6 +311,12 @@ export default function AIPatientSummary({ patient }: AIPatientSummaryProps) {
               })}
             </div>
           </div>
+
+          {/* Active Prescribed Medications Section */}
+          <PrescribedMedicationsList 
+            currentMedications={patient.currentMedications} 
+            patientName={patient.name} 
+          />
 
           {/* Current Vitals Section */}
           <div id="summary-vitals-section" className="space-y-2">

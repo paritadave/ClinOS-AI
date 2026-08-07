@@ -9,7 +9,8 @@ import {
   UserPlus, 
   Bookmark,
   History,
-  FileCheck
+  FileCheck,
+  Pill
 } from "lucide-react";
 import { Patient, IntakeSummary } from "../types";
 import { apiFetch } from "../lib/apiClient";
@@ -90,8 +91,9 @@ export default function IntakeHistoryPanel({ patient, onRefresh, onLogAudit }: I
         body: JSON.stringify({ currentNote, previousNote })
       });
       const data = await res.json();
-      if (data.comparison) {
-        setCompareResult(data.comparison);
+      const comp = data.comparison || (data.newSymptoms ? data : null);
+      if (comp) {
+        setCompareResult(comp);
         onLogAudit("COMPARE_CLINICAL_HISTORY", `Processed EMR history differential review for patient ${patient.name}.`);
       }
     } catch (err) {
@@ -377,6 +379,25 @@ export default function IntakeHistoryPanel({ patient, onRefresh, onLogAudit }: I
                       EMR Differential Logs
                     </span>
                     <span className="text-xs text-slate-400 font-medium">Encounter delta comparison</span>
+                  </div>
+
+                  {/* Active Prescribed Medications Banner */}
+                  <div className="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 space-y-1.5">
+                    <span className="text-[9.5px] uppercase font-extrabold text-emerald-800 tracking-wider flex items-center gap-1">
+                      <Pill className="w-3 h-3 text-emerald-600" /> Current Prescribed Medications Baseline ({patient.currentMedications?.length || 0})
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {Array.isArray(patient?.currentMedications) && patient.currentMedications.length > 0 ? (
+                        patient.currentMedications.map((m) => (
+                          <span key={m.id} className="bg-white border border-emerald-200 text-slate-800 text-[10px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 shadow-2xs">
+                            <span>{m.name}</span>
+                            <span className="text-emerald-700 font-mono text-[9px]">({m.dosage})</span>
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-slate-400 text-[10px] italic">No active prescribed medications documented.</span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Summary Narrative */}
