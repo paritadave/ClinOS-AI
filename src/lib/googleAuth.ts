@@ -34,7 +34,7 @@ export const initAuth = (
   return () => {};
 };
 
-// Standalone Google Sign-In authorization without Firebase dependency
+// Standalone Google Sign-In authorization
 export const googleSignIn = async (): Promise<{ user: User; accessToken: string }> => {
   const mockUser: User = {
     uid: `user-dr-vance-${Date.now()}`,

@@ -24,6 +24,7 @@ import { Patient, Appointment } from "../types";
 import { getAccessToken, googleSignIn } from "../lib/googleAuth";
 import { sendGmailEmail } from "../lib/gmailService";
 import { apiFetch } from "../lib/apiClient";
+import PrintProvider from "./PrintProvider";
 
 interface PatientTakeHomePanelProps {
   patient: Patient;
@@ -75,12 +76,16 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
   };
 
   const generateSummaryEmailHtml = () => {
-    const formattedConditions = patient.conditions.map((cond) => {
+    const safeConds = Array.isArray(patient?.conditions) ? patient.conditions : [];
+    const safeMeds = Array.isArray(patient?.currentMedications) ? patient.currentMedications : [];
+    const safeAppts = Array.isArray(appointments) ? appointments : [];
+
+    const formattedConditions = safeConds.map((cond) => {
       const trans = laypersonConditions[cond] || cond;
       return `<li style="margin-bottom: 8px; font-size: 13px; color: #334155;"><strong>${cond}</strong>: ${trans}</li>`;
     }).join("");
 
-    const formattedMeds = patient.currentMedications.map((med) => {
+    const formattedMeds = safeMeds.map((med) => {
       const details = laypersonMeds[med.name] || {
         purpose: "Prescribed health maintenance",
         instructions: "Take according to clinician's directed dosing schedule."
@@ -100,7 +105,7 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
       `;
     }).join("");
 
-    const formattedAppts = appointments.map((appt) => {
+    const formattedAppts = safeAppts.map((appt) => {
       return `<li style="margin-bottom: 6px; font-size: 13px; color: #334155;"><strong>${appt.date} at ${appt.time}</strong> with ${appt.clinicianName} (${appt.reason})</li>`;
     }).join("");
 
@@ -227,7 +232,21 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
 
   const handlePrint = () => {
     onLogAudit("PRINT_PATIENT_SUMMARY", `Generated and printed take-home care summary handout for patient ${patient.name}.`);
-    window.print();
+    
+    try {
+      document.body.classList.add("is-printing-handout");
+      const cleanup = () => {
+        document.body.classList.remove("is-printing-handout");
+        window.removeEventListener("afterprint", cleanup);
+      };
+
+      window.addEventListener("afterprint", cleanup);
+      window.print();
+      setTimeout(cleanup, 2500);
+    } catch (e) {
+      console.error("Print receipt execution error:", e);
+      window.print();
+    }
   };
 
   const handleExportPDF = async () => {
@@ -235,45 +254,43 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
     setIsExporting(true);
     onLogAudit("EXPORT_PATIENT_SUMMARY_PDF", `Initiated high-fidelity PDF document compilation for patient ${patient.name}.`);
     
-    // Allow state change and layout recalculation to complete
-    await new Promise((resolve) => setTimeout(resolve, 150));
-
     try {
       const html2canvas = (await import("html2canvas")).default;
       const { jsPDF } = await import("jspdf");
 
       const element = document.getElementById("printable-handout-content");
       if (!element) {
-        throw new Error("Handout content container not found.");
+        throw new Error("Handout content container not found in portal.");
       }
 
       const canvas = await html2canvas(element, {
-        scale: 2, // 2x resolution
+        scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff",
+        windowWidth: 800,
       });
 
-      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+      const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
       
-      const pdfWidth = pdf.internal.pageSize.getWidth(); // 210
-      const pdfHeight = pdf.internal.pageSize.getHeight(); // 297
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      const margin = 10; // 10mm margins
+      const margin = 10;
       const printWidth = pdfWidth - (margin * 2);
       const printHeight = (canvas.height * printWidth) / canvas.width;
       
       let heightLeft = printHeight;
       let position = margin;
 
-      pdf.addImage(imgData, "JPEG", margin, position, printWidth, printHeight, undefined, "FAST");
+      pdf.addImage(imgData, "PNG", margin, position, printWidth, printHeight, undefined, "FAST");
       heightLeft -= (pdfHeight - (margin * 2));
 
       while (heightLeft > 0) {
         position = heightLeft - printHeight + margin;
         pdf.addPage();
-        pdf.addImage(imgData, "JPEG", margin, position, printWidth, printHeight, undefined, "FAST");
+        pdf.addImage(imgData, "PNG", margin, position, printWidth, printHeight, undefined, "FAST");
         heightLeft -= (pdfHeight - (margin * 2));
       }
 
@@ -281,8 +298,8 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
       onLogAudit("EXPORT_PATIENT_SUMMARY_PDF_SUCCESS", `Downloaded Patient Care Plan PDF: Patient_Care_Plan_${patient.name}.pdf`);
     } catch (err) {
       console.error("PDF generation error:", err);
-      onLogAudit("EXPORT_PATIENT_SUMMARY_PDF_FAILED", `PDF compilation failed: ${err instanceof Error ? err.message : String(err)}. Invoking fallback system printer.`);
-      window.print();
+      onLogAudit("EXPORT_PATIENT_SUMMARY_PDF_FAILED", `PDF compilation failed: ${err instanceof Error ? err.message : String(err)}. Invoking fallback printer.`);
+      handlePrint();
     } finally {
       setIsGeneratingPDF(false);
       setIsExporting(false);
@@ -326,61 +343,68 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col h-full" id="patient-take-home-summary">
-      {/* Header Controls */}
-      <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100 flex-wrap gap-2">
-        <div>
-          <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <Heart className="w-5 h-5 text-rose-500 fill-rose-500/10" />
-            Patient Take-Home Health Receipt
-          </h2>
-          <p className="text-xs text-slate-400 font-medium">Simplified, jargon-free health summary and lifestyle guidelines provided to patients</p>
+    <PrintProvider
+      patient={patient}
+      appointments={appointments}
+      customNote={customNote}
+      laypersonConditions={laypersonConditions}
+      laypersonMeds={laypersonMeds}
+    >
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col h-full" id="patient-take-home-summary">
+        {/* Header Controls */}
+        <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100 flex-wrap gap-2">
+          <div>
+            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <Heart className="w-5 h-5 text-rose-500 fill-rose-500/10" />
+              Patient Take-Home Health Receipt
+            </h2>
+            <p className="text-xs text-slate-400 font-medium">Simplified, jargon-free health summary and lifestyle guidelines provided to patients</p>
+          </div>
+          
+          <div className="flex items-center gap-2 flex-wrap">
+            <button 
+              onClick={handleCopyLink}
+              className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-800 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-all cursor-pointer"
+            >
+              {isCopied ? "✓ Shared with Portal" : "Share with Patient Portal"}
+            </button>
+            <button 
+              onClick={() => setShowEmailModal(true)}
+              className="px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+            >
+              <Mail className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Email Handout (Gmail)</span>
+            </button>
+            <button 
+              onClick={handleExportPDF}
+              disabled={isGeneratingPDF}
+              className="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+            >
+              {isGeneratingPDF ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Compiling PDF...
+                </>
+              ) : (
+                <>
+                  <FileDown className="w-3.5 h-3.5" />
+                  Export PDF Handout
+                </>
+              )}
+            </button>
+            <button 
+              onClick={handlePrint}
+              className="px-3 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-black rounded-lg transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              Print Receipt
+            </button>
+          </div>
         </div>
-        
-        <div className="flex items-center gap-2 flex-wrap">
-          <button 
-            onClick={handleCopyLink}
-            className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-800 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-all cursor-pointer"
-          >
-            {isCopied ? "✓ Shared with Portal" : "Share with Patient Portal"}
-          </button>
-          <button 
-            onClick={() => setShowEmailModal(true)}
-            className="px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
-          >
-            <Mail className="w-3.5 h-3.5 text-indigo-600" />
-            <span>Email Handout (Gmail)</span>
-          </button>
-          <button 
-            onClick={handleExportPDF}
-            disabled={isGeneratingPDF}
-            className="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
-          >
-            {isGeneratingPDF ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                Compiling PDF...
-              </>
-            ) : (
-              <>
-                <FileDown className="w-3.5 h-3.5" />
-                Export PDF Handout
-              </>
-            )}
-          </button>
-          <button 
-            onClick={handlePrint}
-            className="px-3 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-black rounded-lg transition-all flex items-center gap-1.5 cursor-pointer"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            Print Receipt
-          </button>
-        </div>
-      </div>
 
-      {/* Main Print Preview Container */}
-      <div className="flex-1 overflow-y-auto pr-1 space-y-5 custom-scrollbar max-h-[600px] border border-slate-150 rounded-2xl p-5 bg-slate-50/50">
-        <div id="printable-handout-content" className="space-y-5 bg-transparent p-1">
+        {/* Main Print Preview Container */}
+        <div className="flex-1 overflow-y-auto pr-1 space-y-5 custom-scrollbar max-h-[600px] border border-slate-150 rounded-2xl p-5 bg-slate-50/50">
+          <div id="patient-take-home-preview-content" className="space-y-5 bg-transparent p-1">
         
         {/* Printable Card Header */}
         <div className="bg-white p-5 rounded-xl border border-slate-200/60 shadow-xs space-y-4">
@@ -422,7 +446,7 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
           </h4>
           
           <div className="space-y-2.5">
-            {patient.conditions.map((cond, idx) => {
+            {(Array.isArray(patient?.conditions) ? patient.conditions : []).map((cond, idx) => {
               const translation = laypersonConditions[cond] || cond;
               return (
                 <div key={idx} className="bg-slate-50/50 border border-slate-100 rounded-lg p-3 text-xs flex gap-3">
@@ -445,7 +469,7 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
           </h4>
 
           <div className="space-y-3">
-            {patient.currentMedications.map((med) => {
+            {(Array.isArray(patient?.currentMedications) ? patient.currentMedications : []).map((med) => {
               const details = laypersonMeds[med.name] || {
                 purpose: "Prescribed health maintenance",
                 instructions: "Take according to clinician's directed dosing schedule."
@@ -568,13 +592,18 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
                 {customNote || "No custom lifestyle guidelines provided."}
               </div>
             ) : (
-              <textarea
-                value={customNote}
-                onChange={(e) => setCustomNote(e.target.value)}
-                className="w-full text-xs font-medium text-slate-700 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 rounded-xl p-3 focus:outline-hidden focus:border-blue-500 transition-all leading-relaxed resize-none print:border-none print:bg-white print:p-0"
-                rows={3}
-                placeholder="Enter special instructions for the patient..."
-              />
+              <>
+                <div className="print:block hidden w-full text-xs font-semibold text-slate-800 bg-slate-50 border border-slate-200 rounded-xl p-3 leading-relaxed whitespace-pre-wrap">
+                  {customNote || "No custom lifestyle guidelines provided."}
+                </div>
+                <textarea
+                  value={customNote}
+                  onChange={(e) => setCustomNote(e.target.value)}
+                  className="print:hidden w-full text-xs font-medium text-slate-700 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 rounded-xl p-3 focus:outline-hidden focus:border-blue-500 transition-all leading-relaxed resize-none"
+                  rows={3}
+                  placeholder="Enter special instructions for the patient..."
+                />
+              </>
             )}
             <p className="text-[10px] text-slate-400 italic font-medium print:hidden">
               * Clinicians can customize this text box prior to printing or exporting the handout.
@@ -752,7 +781,8 @@ export default function PatientTakeHomePanel({ patient, onLogAudit }: PatientTak
           </div>
         )}
       </AnimatePresence>
-    </div>
+      </div>
+    </PrintProvider>
   );
 }
 

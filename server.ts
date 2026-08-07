@@ -198,6 +198,11 @@ function generateMockFromSchema(schema: any, keyName: string): any {
 const ai = {
   models: {
     generateContent: async function (args: any) {
+      // Normalize model to gemini-3.6-flash if invalid or missing
+      if (!args.model || args.model === "gemini-3.5-flash" || args.model === "gemini-1.5-flash") {
+        args.model = "gemini-3.6-flash";
+      }
+
       let attempt = 0;
       const maxAttempts = 3;
       const client = getGeminiClient();
@@ -802,7 +807,7 @@ app.post("/api/patients/:id/prescribe-safety-check", async (req, res) => {
   );
 
   // If Gemini API Key is missing, do an intelligent local rules fallback so it NEVER breaks or halts
-  if (!apiKey) {
+  if (!getGeminiClient()) {
     console.warn("GEMINI_API_KEY is not defined. Falling back to local clinical rules engine.");
     // Simulate high-fidelity local clinical rules to match PRD safety alert examples perfectly!
     const localAlerts: any[] = [];
@@ -922,7 +927,7 @@ app.post("/api/patients/:id/prescribe-safety-check", async (req, res) => {
     Examine this medical combination and return safety alerts.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-3.6-flash",
       contents: userPrompt,
       config: {
         systemInstruction: systemPrompt,
@@ -973,7 +978,7 @@ app.post("/api/scribe/generate-soap", async (req, res) => {
 
   const finalNotesType = notesType || "SOAP";
 
-  if (!apiKey) {
+  if (!getGeminiClient()) {
     // Return structured default SOAP notes if no API Key
     const placeholderSoap = {
       subjective: `Patient complains of active symptoms. Dry cough persisting over 7 days. Mild dyspnea on exertion. Sleep is slightly disrupted due to cough. Refers to previous back pain resolving with physical therapy. No fever or gastrointestinal complaints. Intake summaries align with worsening dry cough.`,
@@ -1004,7 +1009,7 @@ app.post("/api/scribe/generate-soap", async (req, res) => {
     - Also output a brief 2-sentence summary of the visit.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-3.6-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -1127,7 +1132,7 @@ Patient: Excellent, let's do that.`,
     }
   };
 
-  if (!apiKey) {
+  if (!getGeminiClient()) {
     const fallback = getFallbackData();
     return res.json({
       transcript: fallback.transcript,
@@ -1161,7 +1166,7 @@ Patient: Excellent, let's do that.`,
     }`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-3.6-flash",
       contents: [
         {
           inlineData: {
@@ -1251,7 +1256,7 @@ app.post("/api/scribe/suggest-billing", async (req, res) => {
 
   const selectedFallback = isOntario ? ontarioFallback : bcFallback;
 
-  if (!apiKey) {
+  if (!getGeminiClient()) {
     return res.json({ suggestions: selectedFallback, province: patient.province, source: "Offline Provincial Billing Parser" });
   }
 
@@ -1274,7 +1279,7 @@ app.post("/api/scribe/suggest-billing", async (req, res) => {
     Return ONLY a JSON array matching this format.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-3.6-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -1371,7 +1376,7 @@ Billing Practitioner Number: ${isOntario ? "849312" : "948213"}
 Regulatory Registration: ${referringMdNo}
   `;
 
-  if (!apiKey) {
+  if (!getGeminiClient()) {
     return res.json({ letter: fallbackLetter.trim(), source: "Offline College-Compliant Formatter" });
   }
 
@@ -1397,7 +1402,7 @@ Regulatory Registration: ${referringMdNo}
     Do not use markdown wrappers like \`\`\` or other markers. Just return the raw structured formal letter text.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-3.6-flash",
       contents: prompt,
     });
 
@@ -1490,7 +1495,7 @@ app.post("/api/translate", async (req, res) => {
     `Translated spoken dialogue from ${sourceLanguage || "Detect"} to ${targetLanguage} for interactive patient-doctor session.`
   );
 
-  if (!apiKey) {
+  if (!getGeminiClient()) {
     const placeholderTranslations: { [key: string]: string } = {
       "French": "Bonjour, comment puis-je vous aider aujourd'hui?",
       "Hindi": "नमस्ते, आज मैं आपकी क्या मदद कर सकता हूँ?",
@@ -1517,7 +1522,7 @@ app.post("/api/translate", async (req, res) => {
     - Provide only the translated text as your response.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-3.6-flash",
       contents: prompt,
     });
 
@@ -1538,7 +1543,7 @@ app.post("/api/imaging/summarize", async (req, res) => {
     `Summarized complex diagnostic ${imagingType || "Imaging"} clinical radiology report for EMR entry and patient sharing.`
   );
 
-  if (!apiKey) {
+  if (!getGeminiClient()) {
     const placeholderSummary = {
       clinicalOverview: "Small lumbar disc protrusion at L4-L5. There is no active nerve root compression, vertebral body alignment is preserved, and the L5-S1 disc level is completely normal.",
       patientExplanation: "You have a very small bulging disc in your lower back between the 4th and 5th bones. The good news is that it is not pinching or pressing on any nerves, which is why there's no major leg pain. The rest of your lower back is in great shape.",
@@ -1564,7 +1569,7 @@ app.post("/api/imaging/summarize", async (req, res) => {
     Return ONLY JSON.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-3.6-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -1601,7 +1606,7 @@ app.post("/api/history/compare", async (req, res) => {
     `Compared current visit records with previous longitudinal EMR historical consults.`
   );
 
-  if (!apiKey) {
+  if (!getGeminiClient()) {
     const placeholderComparison = {
       newSymptoms: ["Dry hacky cough for 7 days", "Mild shortness of breath on exertion"],
       newMedications: ["Ventolin (Salbutamol) PRN inhaler added"],
@@ -1629,7 +1634,7 @@ app.post("/api/history/compare", async (req, res) => {
     Return results as a clean JSON object.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-3.6-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -1665,7 +1670,7 @@ app.post("/api/intake/analyze", async (req, res) => {
     `Analyzed pre-visit patient self-intake form for chief complaint: "${chiefComplaint}".`
   );
 
-  if (!apiKey) {
+  if (!getGeminiClient()) {
     const placeholderSummary = `Patient reports chief complaint of "${chiefComplaint}". Active symptoms: ${symptoms.join(", ")}. Declares current medications: ${medications}. Allergies: ${allergies}. Family history of: ${familyHistory}. Recent changes noted: ${recentChanges}. AI Pre-Visit Summary: Acute respiratory/complaint onset with no standard red flags identified. Recommended for physician review.`;
     return res.json({ aiSummary: placeholderSummary, source: "Intake Offline Template Engine" });
   }
@@ -1684,7 +1689,7 @@ app.post("/api/intake/analyze", async (req, res) => {
     The summary should look professional, list emergency/red-flag indicators (or note if none are identified), and highlight active items that the doctor should address immediately.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-3.6-flash",
       contents: prompt,
     });
 

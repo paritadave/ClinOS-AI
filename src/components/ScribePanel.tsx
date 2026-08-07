@@ -1096,7 +1096,7 @@ ${generatedScribe.referralLetter || `CLINICAL ASSESSMENT NOTES:\n\nSUBJECTIVE:\n
                     <span>Preventive Care Alerts Identified ({preventiveAlerts.length})</span>
                   </div>
                   <div className="space-y-2 max-h-44 overflow-y-auto custom-scrollbar pr-1">
-                    {preventiveAlerts.map((alert, i) => (
+                    {(Array.isArray(preventiveAlerts) ? preventiveAlerts : []).map((alert, i) => (
                       <div key={i} className="bg-white/95 rounded-lg p-2.5 border border-amber-100 text-[11px] leading-relaxed shadow-2xs">
                         <div className="flex items-center justify-between font-bold text-slate-800">
                           <span>{alert.title}</span>
@@ -1135,7 +1135,7 @@ ${generatedScribe.referralLetter || `CLINICAL ASSESSMENT NOTES:\n\nSUBJECTIVE:\n
             {/* Sandbox triggers to see instant SOAP Note creation */}
             <div className="space-y-2">
               <div className="flex gap-2">
-                {transcriptPresets.map((preset, idx) => (
+                {(Array.isArray(transcriptPresets) ? transcriptPresets : []).map((preset, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleSelectPreset(preset.text)}
@@ -1448,7 +1448,7 @@ ${generatedScribe.referralLetter || `CLINICAL ASSESSMENT NOTES:\n\nSUBJECTIVE:\n
                             </div>
                             <div className="text-right">
                               <p className="text-xl font-extrabold text-amber-900 font-mono">
-                                ${billingSuggestions.reduce((acc, code) => acc + code.fee, 0).toFixed(2)}
+                                ${(Array.isArray(billingSuggestions) ? billingSuggestions : []).reduce((acc, code) => acc + code.fee, 0).toFixed(2)}
                               </p>
                               <span className="text-[9px] text-amber-700 font-mono font-bold">Total Estimated Claim Payout</span>
                             </div>
@@ -1463,7 +1463,7 @@ ${generatedScribe.referralLetter || `CLINICAL ASSESSMENT NOTES:\n\nSUBJECTIVE:\n
                           <div className="space-y-2">
                             <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Suggested Codes Matrix</h4>
                             <div className="border border-slate-100 rounded-xl overflow-hidden bg-white">
-                              {billingSuggestions.map((item, idx) => (
+                              {(Array.isArray(billingSuggestions) ? billingSuggestions : []).map((item, idx) => (
                                 <div key={idx} className="p-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 flex items-center justify-between gap-3 transition-all">
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2">
@@ -1596,7 +1596,7 @@ ${generatedScribe.referralLetter || `CLINICAL ASSESSMENT NOTES:\n\nSUBJECTIVE:\n
                         </div>
                       ) : (
                         <div className="space-y-3">
-                          {guidelineAudits.map((item, idx) => {
+                          {(Array.isArray(guidelineAudits) ? guidelineAudits : []).map((item, idx) => {
                             const isAlert = item.status.includes("Required") || item.status.includes("Alert");
                             return (
                               <div key={idx} className={`border rounded-xl p-3.5 space-y-1.5 transition-all ${
@@ -1944,7 +1944,7 @@ ${generatedScribe.referralLetter || `CLINICAL ASSESSMENT NOTES:\n\nSUBJECTIVE:\n
                 </div>
               ) : (
                 <div className="space-y-3.5">
-                  {translationLog.map((log, idx) => {
+                  {(Array.isArray(translationLog) ? translationLog : []).map((log, idx) => {
                     const isDoc = log.sender === "doctor";
                     return (
                       <motion.div

@@ -209,53 +209,56 @@ export default function App() {
   // Fetch initial data
   const fetchData = async () => {
     try {
-      // Fetch Patients
-      const patientRes = await apiFetch("/api/patients");
-      let basePatients = FALLBACK_PATIENTS;
-      if (patientRes.ok) {
-        const patientData = await patientRes.json();
-        if (Array.isArray(patientData) && patientData.length > 0) {
-          basePatients = patientData;
-        }
+      const [patientRes, auditRes, healthRes] = await Promise.all([
+        apiFetch("/api/patients"),
+        apiFetch("/api/audit-logs"),
+        apiFetch("/api/system-health"),
+      ]);
+
+      if (!patientRes.ok) {
+        throw new Error(`Patients API failed: ${patientRes.status}`);
       }
 
-      // Merge with local storage
+      if (!auditRes.ok) {
+        throw new Error(`Audit API failed: ${auditRes.status}`);
+      }
+
+      if (!healthRes.ok) {
+        throw new Error(`System health API failed: ${healthRes.status}`);
+      }
+
+      const patientData = await patientRes.json();
+      const auditData = await auditRes.json();
+      const healthData = await healthRes.json();
+
+      const validPatientData = Array.isArray(patientData) && patientData.length > 0 ? patientData : FALLBACK_PATIENTS;
       const localPatients = safeGetLocalStorage<Patient[]>("clinos_local_patients", []);
-      const merged = [...basePatients];
-      localPatients.forEach((lp: Patient) => {
-        if (!merged.some(p => p.id === lp.id)) {
-          merged.push(lp);
-        }
-      });
+      const merged = [...validPatientData];
+      if (Array.isArray(localPatients)) {
+        localPatients.forEach((lp: Patient) => {
+          if (!merged.some(p => p.id === lp.id)) {
+            merged.push(lp);
+          }
+        });
+      }
+
       setPatients(merged);
-
-      // Fetch Audit Logs
-      const auditRes = await apiFetch("/api/audit-logs");
-      if (auditRes.ok) {
-        const auditData = await auditRes.json();
-        if (Array.isArray(auditData) && auditData.length > 0) {
-          setAuditLogs(auditData);
-        }
-      }
-
-      // Fetch System Health
-      const healthRes = await apiFetch("/api/system-health");
-      if (healthRes.ok) {
-        const healthData = await healthRes.json();
-        if (healthData && healthData.status) {
-          setSystemHealth(healthData);
-        }
-      }
+      setAuditLogs(Array.isArray(auditData) ? auditData : FALLBACK_AUDIT_LOGS);
+      setSystemHealth(healthData ?? FALLBACK_SYSTEM_HEALTH);
     } catch (err) {
-      console.warn("Could not load live clinical workspace from server, using local secure PIPEDA fallback mode.", err);
+      console.error("Error fetching clinical workspace data:", err);
       const localPatients = safeGetLocalStorage<Patient[]>("clinos_local_patients", []);
       const merged = [...FALLBACK_PATIENTS];
-      localPatients.forEach((lp: Patient) => {
-        if (!merged.some(p => p.id === lp.id)) {
-          merged.push(lp);
-        }
-      });
+      if (Array.isArray(localPatients)) {
+        localPatients.forEach((lp: Patient) => {
+          if (!merged.some(p => p.id === lp.id)) {
+            merged.push(lp);
+          }
+        });
+      }
       setPatients(merged);
+      setAuditLogs(FALLBACK_AUDIT_LOGS);
+      setSystemHealth(FALLBACK_SYSTEM_HEALTH);
     } finally {
       setIsLoading(false);
     }
@@ -337,7 +340,9 @@ export default function App() {
   const safeNotifications = Array.isArray(notifications) ? notifications : [];
   const safeAuditLogs = Array.isArray(auditLogs) ? auditLogs : [];
 
-  const activePatient = safePatients.find(p => p.id === selectedPatientId) || safePatients[0] || FALLBACK_PATIENTS[0];
+  const activePatient = Array.isArray(patients)
+    ? (patients.find(p => p.id === selectedPatientId) || patients[0] || FALLBACK_PATIENTS[0])
+    : FALLBACK_PATIENTS[0];
 
   const getBentoCards = () => {
     const cards = [
@@ -713,7 +718,7 @@ export default function App() {
                     Documented Allergies
                   </span>
                   <div className="flex flex-wrap gap-1">
-                    {activePatient.allergies.map((al, idx) => (
+                    {(Array.isArray(activePatient?.allergies) ? activePatient.allergies : []).map((al, idx) => (
                       <span key={idx} className="bg-rose-50 text-rose-700 border border-rose-100 text-[10px] px-2 py-0.5 rounded-md font-semibold font-sans">
                         {al}
                       </span>
@@ -727,7 +732,7 @@ export default function App() {
                     Chronic Diagnoses
                   </span>
                   <div className="flex flex-wrap gap-1">
-                    {activePatient.conditions.map((co, idx) => (
+                    {(Array.isArray(activePatient?.conditions) ? activePatient.conditions : []).map((co, idx) => (
                       <span key={idx} className="bg-slate-100 text-slate-700 text-[10px] px-2 py-0.5 rounded-md font-medium">
                         {co}
                       </span>

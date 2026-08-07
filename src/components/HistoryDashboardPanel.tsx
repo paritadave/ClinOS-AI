@@ -472,7 +472,7 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
                 <p className="text-[10px] text-slate-400 font-medium mb-3">Abnormal indicators extracted from HL7</p>
 
                 <div className="space-y-2 overflow-y-auto max-h-[200px] scrollbar-thin pr-1">
-                  {patient.labs.map(lab => (
+                  {(Array.isArray(patient?.labs) ? patient.labs : []).map(lab => (
                     <div 
                       key={lab.id} 
                       className={`p-2.5 rounded-xl border flex items-center justify-between text-[10px] ${
@@ -620,7 +620,7 @@ export default function HistoryDashboardPanel({ patient, onRefresh, onLogAudit }
                       Key Lab Observation Limits
                     </h4>
                     <div className="space-y-2 max-h-[160px] overflow-y-auto scrollbar-thin pr-1">
-                      {patient.labs.map(lab => (
+                      {(Array.isArray(patient?.labs) ? patient.labs : []).map(lab => (
                         <div 
                           key={lab.id} 
                           className={`p-2.5 rounded-xl border flex items-center justify-between text-[10px] ${

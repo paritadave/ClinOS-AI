@@ -37,7 +37,7 @@ ClinOS is an intelligent, PHIPA-aligned Electronic Medical Record (EMR) co-pilot
 - **Icons**: [Lucide React](https://lucide.dev/) for high-contrast vector clinical layouts.
 - **Audio Processing**: Web Audio API (MediaStreamAudioSource, BiquadFilterNode, MediaStreamAudioDestination).
 - **Backend API Layer**: Express.js server hosted in a containerized Cloud Run environment, routing Gemini API prompts securely on the server-side to prevent client-side API key leakage.
-- **Database / Cloud Sync**: Firebase Firestore for durable data storage and audit trail integrity.
+- **Database / Cloud Sync**: In-Memory EMR database engine with persistent audit trail integrity.
 
 ---
 

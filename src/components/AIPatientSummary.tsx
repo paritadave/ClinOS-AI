@@ -60,14 +60,16 @@ export default function AIPatientSummary({ patient }: AIPatientSummaryProps) {
     } else {
       // Dynamic fallback for newly enrolled patients
       const age = patient.birthDate ? (new Date().getFullYear() - new Date(patient.birthDate).getFullYear()) : 30;
+      const safeConds = Array.isArray(patient?.conditions) ? patient.conditions : [];
+      const safeAllergies = Array.isArray(patient?.allergies) ? patient.allergies : [];
       return {
         title: "Active EMR Patient Briefing",
-        ageGender: `${age}-year-old ${patient.gender.toLowerCase()}`,
-        gestation: patient.pregnancyStatus !== "None" ? `${patient.pregnancyStatus} Status` : "Standard",
-        keyStats: `PHN: ${patient.phn} (${patient.province}) • Initial intake profile`,
-        comorbidities: patient.conditions.length > 0 ? patient.conditions : ["No documented chronic conditions"],
-        allergiesAlert: patient.allergies.length > 0 
-          ? `Documented Allergies: ${patient.allergies.join(", ")}` 
+        ageGender: `${age}-year-old ${(patient?.gender || "Patient").toLowerCase()}`,
+        gestation: patient?.pregnancyStatus !== "None" ? `${patient?.pregnancyStatus} Status` : "Standard",
+        keyStats: `PHN: ${patient?.phn || "N/A"} (${patient?.province || "ON"}) • Initial intake profile`,
+        comorbidities: safeConds.length > 0 ? safeConds : ["No documented chronic conditions"],
+        allergiesAlert: safeAllergies.length > 0 
+          ? `Documented Allergies: ${safeAllergies.join(", ")}` 
           : "No documented active allergies or safety alerts.",
         recentActivity: "Patient enrolled in clinical directory. Initial EMR baseline records established.",
         recommendations: [

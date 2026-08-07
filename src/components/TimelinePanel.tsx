@@ -44,9 +44,17 @@ export default function TimelinePanel({ patient, onRefresh, onLogAudit }: Timeli
     originalObject?: ImagingResult;
   }
 
+  // Safe extraction of patient arrays
+  const safeConditions = Array.isArray(patient?.conditions) ? patient.conditions : [];
+  const safeMedications = Array.isArray(patient?.currentMedications) ? patient.currentMedications : [];
+  const safeLabs = Array.isArray(patient?.labs) ? patient.labs : [];
+  const safeImaging = Array.isArray(patient?.imaging) ? patient.imaging : [];
+  const safeReferrals = Array.isArray(patient?.referrals) ? patient.referrals : [];
+  const safeSoapNotes = Array.isArray(patient?.soapNotes) ? patient.soapNotes : [];
+
   // Compile timeline events from patient record
   const timelineEvents: TimelineEvent[] = [
-    ...patient.conditions.map(c => ({
+    ...safeConditions.map(c => ({
       date: "Active",
       category: "condition",
       title: c,
@@ -55,7 +63,7 @@ export default function TimelinePanel({ patient, onRefresh, onLogAudit }: Timeli
       icon: Activity,
       color: "text-amber-600 bg-amber-50 border-amber-200"
     })),
-    ...patient.currentMedications.map(m => ({
+    ...safeMedications.map(m => ({
       date: m.startDate,
       category: "medication",
       title: `${m.name} ${m.dosage}`,
@@ -64,7 +72,7 @@ export default function TimelinePanel({ patient, onRefresh, onLogAudit }: Timeli
       icon: Pill,
       color: "text-emerald-600 bg-emerald-50 border-emerald-200"
     })),
-    ...patient.labs.map(l => ({
+    ...safeLabs.map(l => ({
       date: l.date,
       category: "lab",
       title: l.testName,
@@ -77,7 +85,7 @@ export default function TimelinePanel({ patient, onRefresh, onLogAudit }: Timeli
         ? "text-orange-600 bg-orange-50 border-orange-200" 
         : "text-blue-600 bg-blue-50 border-blue-200"
     })),
-    ...patient.imaging.map(i => ({
+    ...safeImaging.map(i => ({
       date: i.date,
       category: "imaging",
       title: `${i.type} - ${i.area}`,
@@ -87,7 +95,7 @@ export default function TimelinePanel({ patient, onRefresh, onLogAudit }: Timeli
       icon: FileText,
       color: "text-blue-600 bg-blue-50 border-blue-200"
     })),
-    ...patient.referrals.map(r => ({
+    ...safeReferrals.map(r => ({
       date: r.date,
       category: "referral",
       title: `Referral: ${r.specialty}`,
@@ -96,7 +104,7 @@ export default function TimelinePanel({ patient, onRefresh, onLogAudit }: Timeli
       icon: ChevronRight,
       color: "text-purple-600 bg-purple-50 border-purple-200"
     })),
-    ...(patient.soapNotes || []).map(s => ({
+    ...safeSoapNotes.map(s => ({
       date: s.date,
       category: "scribe",
       title: "EMR SOAP Progress Note",
@@ -107,9 +115,11 @@ export default function TimelinePanel({ patient, onRefresh, onLogAudit }: Timeli
     }))
   ];
 
+  const safeTimelineEvents = Array.isArray(timelineEvents) ? timelineEvents : [];
+
   const filteredEvents = filterCategory === "all" 
-    ? timelineEvents 
-    : timelineEvents.filter(e => e.category === filterCategory);
+    ? safeTimelineEvents 
+    : safeTimelineEvents.filter(e => e.category === filterCategory);
 
   const handleSummarizeImaging = async (img: ImagingResult) => {
     setSummarizingId(img.id);

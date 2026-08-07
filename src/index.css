@@ -39,55 +39,47 @@
 }
 
 @media print {
-  /* Hide navigation, sidebars, headers, footers, triggers, and control panels */
-  header, footer, select, button, .print\:hidden, fixed, .fixed, #bento-dashboard, .lg\:col-span-3, [role="tablist"] {
+  /* When printing handout via dedicated print mount */
+  body.is-printing-handout > *:not(#print-mount) {
     display: none !important;
   }
-  
-  /* Reset document background for physical ink output */
-  body, html, #app-root, main {
-    background: #ffffff !important;
-    color: #000000 !important;
-    height: auto !important;
-    min-height: auto !important;
-    overflow: visible !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
 
-  /* Ensure the take-home panel covers the entire print page without truncation */
-  #patient-take-home-summary {
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
+  body.is-printing-handout #print-mount {
+    display: block !important;
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
-  }
-
-  #printable-handout-content {
-    max-height: none !important;
-    overflow: visible !important;
-    padding: 0 !important;
+    width: 100% !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 24px !important;
     margin: 0 !important;
+    box-sizing: border-box !important;
   }
 
-  /* Optimize contrast and borders for grey/black scales */
-  .bg-slate-50, .bg-slate-50\/50, .bg-blue-50\/50 {
+  /* Standard print overrides if browser print (Ctrl+P) is invoked directly */
+  body:not(.is-printing-handout) header,
+  body:not(.is-printing-handout) nav,
+  body:not(.is-printing-handout) button,
+  body:not(.is-printing-handout) .print\:hidden {
+    display: none !important;
+  }
+
+  body:not(.is-printing-handout) #printable-handout-content {
+    background: #ffffff !important;
+    color: #000000 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Hide elements marked with print:hidden */
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Optimize contrast and borders for physical ink output */
+  .bg-slate-50, .bg-slate-50\/50, .bg-blue-50\/50, .bg-indigo-50\/30 {
     background: #ffffff !important;
     border: 1px solid #e2e8f0 !important;
-  }
-
-  textarea {
-    border: none !important;
-    background: transparent !important;
-    padding: 0 !important;
-    resize: none !important;
   }
 }

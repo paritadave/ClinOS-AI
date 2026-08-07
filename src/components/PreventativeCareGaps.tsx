@@ -253,7 +253,8 @@ export default function PreventativeCareGaps({
     ];
   };
 
-  const patientGaps = getPatientGaps();
+  const rawGaps = getPatientGaps();
+  const patientGaps = Array.isArray(rawGaps) ? rawGaps : [];
 
   // Reset states when patient switches
   useEffect(() => {
